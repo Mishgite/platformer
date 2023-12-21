@@ -1,7 +1,43 @@
 import pygame
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QPushButton, \
+    QMainWindow, QLabel, QLineEdit, QComboBox, QPlainTextEdit
 
 
 a = False
+level = 0
+
+'''
+class MyWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.resize(500, 500)
+        self.layout = QVBoxLayout()
+        self.comboBox = QComboBox()
+        a = ['уровень 1', 'уровень 2', 'уровень 3']
+        for i in a:
+            self.comboBox.addItem(i)
+        self.layout.addWidget(self.comboBox)
+'''
+class MyWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.resize(400, 300)
+        self.setWindowTitle('Фильмотека')
+
+        self.layout = QVBoxLayout()
+        self.comboBox = QComboBox()
+        a = ['уровень 1', 'уровень 2', 'уровень 3']
+        for i in a:
+            self.comboBox.addItem(i)
+        self.layout.addWidget(self.comboBox)
+
+        self.addButton = QPushButton('начать игру')
+        self.layout.addWidget(self.addButton)
+
+        self.setLayout(self.layout)
+        if self.addButton.click:
+            print(1)
 
 
 class Border(pygame.sprite.Sprite):
@@ -67,6 +103,9 @@ class Forester(pygame.sprite.Sprite):
 
 if __name__ == '__main__':
     pygame.init()
+    app = QApplication(sys.argv)
+    widget = MyWidget()
+    widget.show()
     pygame.display.set_caption('Платформы')
     size = width, height = 500, 500
     screen = pygame.display.set_mode(size)
