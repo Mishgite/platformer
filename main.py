@@ -6,24 +6,13 @@ from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetIte
 
 a = False
 level = 0
+start = False
 
-'''
+
 class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.resize(500, 500)
-        self.layout = QVBoxLayout()
-        self.comboBox = QComboBox()
-        a = ['уровень 1', 'уровень 2', 'уровень 3']
-        for i in a:
-            self.comboBox.addItem(i)
-        self.layout.addWidget(self.comboBox)
-'''
-class MyWidget(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.resize(400, 300)
-        self.setWindowTitle('Фильмотека')
 
         self.layout = QVBoxLayout()
         self.comboBox = QComboBox()
@@ -31,13 +20,21 @@ class MyWidget(QWidget):
         for i in a:
             self.comboBox.addItem(i)
         self.layout.addWidget(self.comboBox)
+        self.comboBox.currentIndexChanged.connect(self.Levl)
 
         self.addButton = QPushButton('начать игру')
         self.layout.addWidget(self.addButton)
 
         self.setLayout(self.layout)
-        if self.addButton.click:
-            print(1)
+        self.addButton.clicked.connect(self.Start)
+
+    def Start(self):
+        global start
+        start = True
+
+    def Levl(self, i):
+        global level
+        level = i
 
 
 class Border(pygame.sprite.Sprite):
