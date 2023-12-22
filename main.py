@@ -18,7 +18,7 @@ def load_image(name, colorkey=None):
 
 
 pygame.init()
-WIDTH, HEIGHT = 600, 550
+WIDTH, HEIGHT = 1000, 760
 MAX_FPS = 80
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -95,7 +95,7 @@ def main_menu():
     running = True
     while running:
         screen.fill((0, 0, 0))
-        screen.blit(main_background, (0, -200))
+        screen.blit(main_background, (0, 0))
         font = pygame.font.Font(None, 72)
         text_surface = font.render("MENU TEST", True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=(WIDTH/2, 100))
