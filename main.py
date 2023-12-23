@@ -1,6 +1,7 @@
-import pygame
 import sys
+import pyganim
 import os
+import pygame
 import sqlite3
 from button import ImageButton
 
@@ -12,6 +13,14 @@ def load_image(name, colorkey=None):
         sys.exit()
     image = pygame.image.load(fullname)
     return image
+
+
+def load_level(filename):
+    filename = "Levels/" + filename
+    with open(filename, 'r') as mapFile:
+        level_map = [line.strip() for line in mapFile]
+    max_width = max(map(len, level_map))
+    return list(map(lambda x: x.ljust(max_width, ' '), level_map))
 
 
 con = sqlite3.connect("play_db.sqlite")
@@ -28,6 +37,37 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Платформер')
 main_background = load_image(data[image])
 data_now = data[image]
+
+MOVE_SPEED = 7
+WIDTH1 = 22
+HEIGHT1 = 42
+COLOR = "#888888"
+JUMP_POWER = 10
+GRAVITY = 0.35
+ANIMATION_DELAY = 0.1
+
+ANIMATION_RIGHT = ['Run/run1.png', 'Run/run2.png', 'Run/run3.png', 'Run/run4.png', 'Run/run5.png', 'Run/run6.png',
+                   'Run/run7.png', 'Run/run8.png']
+ANIMATION_LEFT = ['r1.png', 'r1.png', 'r1.png', 'r1.png', 'r1.png']
+ANIMATION_JUMP_LEFT = [('r1.png', 0.1)]
+ANIMATION_JUMP_RIGHT = [('r1.png', 0.1)]
+ANIMATION_JUMP = [('r1.png', 0.1)]
+ANIMATION_STAY = [('r1.png', 0.1)]
+
+PLATFORM_WIDTH = 32
+PLATFORM_HEIGHT = 32
+PLATFORM_COLOR = "#FF6262"
+ICON_DIR = os.path.dirname(__file__)
+
+LAVA_WIDTH = 32
+LAVA_HEIGHT = 32
+LAVA_COLOR = "#FF6262"
+ICON_DIR = os.path.dirname(__file__)
+
+WIN_WIDTH = 1000
+WIN_HEIGHT = 760
+DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
+BACKGROUND_IMAGE = load_image('backgroundl.png')
 
 
 def main_menu():
@@ -92,7 +132,7 @@ def setting_menu():
                 x, y = event.pos
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (250 <= y and y <= 250 + 74):
                     if data_now == 'background.jpg':
-                        cur.execute('''UPDATE play SET values = '1' WHERE id = 1''').fetchone()
+                        # cur.execute('''UPDATE play SET values = '1' WHERE id = 1''').fetchone()
                         main_background = load_image(data[1])
                         data_now = data[1]
                     elif data_now == 'background1.jpg':
@@ -137,6 +177,9 @@ def new_game():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (150 <= y and y <= 150 + 74):
+                    fade()
+                    level()
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (550 <= y and y <= 550 + 74):
                     fade()
                     main_menu()
@@ -166,6 +209,7 @@ def fade():
         pygame.display.flip()
         clock.tick(MAX_FPS)
 
+
 def continuation():
     level1_button = ImageButton(WIDTH / 2 - (252 / 2), 150, 252, 74, "первый уровень", "green_button.png",
                                'green_button_hover.png')
@@ -188,6 +232,9 @@ def continuation():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (150 <= y and y <= 150 + 74):
+                    fade()
+                    level()
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (550 <= y and y <= 550 + 74):
                     fade()
                     main_menu()
@@ -197,6 +244,216 @@ def continuation():
             btn.check_hover(pygame.mouse.get_pos())
             btn.draw(screen)
         pygame.display.flip()
+
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.xvel = 0
+        self.startX = x
+        self.startY = y
+        self.yvel = 0
+        self.onGround = False
+        self.image = pygame.Surface((WIDTH1, HEIGHT1))
+        self.image.fill(pygame.Color(COLOR))
+        self.rect = pygame.Rect(x, y, WIDTH1, HEIGHT1)
+        self.image.set_colorkey(pygame.Color(COLOR))
+
+        boltAnim = []
+        for anim in ANIMATION_RIGHT:
+            boltAnim.append((anim, ANIMATION_DELAY))
+        self.boltAnimRight = pyganim.PygAnimation(boltAnim)
+        self.boltAnimRight.play()
+
+        boltAnim = []
+        for anim in ANIMATION_LEFT:
+            boltAnim.append((anim, ANIMATION_DELAY))
+        self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
+        self.boltAnimLeft.play()
+
+        self.boltAnimStay = pyganim.PygAnimation(ANIMATION_STAY)
+        self.boltAnimStay.play()
+        self.boltAnimStay.blit(self.image, (0, 0))  # По-умолчанию, стоим
+
+        self.boltAnimJumpLeft = pyganim.PygAnimation(ANIMATION_JUMP_LEFT)
+        self.boltAnimJumpLeft.play()
+
+        self.boltAnimJumpRight = pyganim.PygAnimation(ANIMATION_JUMP_RIGHT)
+        self.boltAnimJumpRight.play()
+
+        self.boltAnimJump = pyganim.PygAnimation(ANIMATION_JUMP)
+        self.boltAnimJump.play()
+
+    def update(self, left, right, up, platforms):
+        if up:
+            if self.onGround:
+                self.yvel = -JUMP_POWER
+            self.image.fill(pygame.Color(COLOR))
+            self.boltAnimJump.blit(self.image, (0, 0))
+        if left:
+            self.xvel = -MOVE_SPEED
+            self.image.fill(pygame.Color(COLOR))
+            if up:
+                self.boltAnimJumpLeft.blit(self.image, (0, 0))
+            else:
+                self.boltAnimLeft.blit(self.image, (0, 0))
+        if right:
+            self.xvel = MOVE_SPEED
+            self.image.fill(pygame.Color(COLOR))
+            if up:
+                self.boltAnimJumpRight.blit(self.image, (0, 0))
+            else:
+                self.boltAnimRight.blit(self.image, (0, 0))
+        if not (left or right):
+            self.xvel = 0
+            if not up:
+                self.image.fill(pygame.Color(COLOR))
+                self.boltAnimStay.blit(self.image, (0, 0))
+        if not self.onGround:
+            self.yvel += GRAVITY
+
+        self.onGround = False
+        self.rect.y += self.yvel
+        self.collide(0, self.yvel, platforms)
+        self.rect.x += self.xvel
+        self.collide(self.xvel, 0, platforms)
+
+    def collide(self, xvel, yvel, platforms):
+        for p in platforms:
+            if pygame.sprite.collide_rect(self, p):
+                if xvel > 0:
+                    self.rect.right = p.rect.left
+                if xvel < 0:
+                    self.rect.left = p.rect.right
+                if yvel > 0:
+                    self.rect.bottom = p.rect.top
+                    self.onGround = True
+                    self.yvel = 0
+                if yvel < 0:
+                    self.rect.top = p.rect.bottom
+                    self.yvel = 0
+#КОНЕЦ ПЕРСОНАЖА
+
+
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
+        self.image.fill(pygame.Color(PLATFORM_COLOR))
+        self.image = load_image("platform.png")
+        self.rect = pygame.Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
+# КОНЕЦ ПЛАТФОРМЫ
+
+
+class Lava(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
+        self.image.fill(pygame.Color(PLATFORM_COLOR))
+        self.image = load_image("lava.png")
+        self.rect = pygame.Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
+
+
+class Camera(object):
+    def __init__(self, camera_func, width, height):
+        self.camera_func = camera_func
+        self.state = pygame.Rect(0, 0, width, height)
+
+    def apply(self, target):
+        return target.rect.move(self.state.topleft)
+
+    def update(self, target):
+        self.state = self.camera_func(self.state, target.rect)
+
+
+def camera_configure(camera, target_rect):
+    l, t, _, _ = target_rect
+    _, _, w, h = camera
+    l, t = -l+WIN_WIDTH / 2, -t+WIN_HEIGHT / 2
+
+    l = min(0, l)                           # Не движемся дальше левой границы
+    l = max(-(camera.width-WIN_WIDTH), l)   # Не движемся дальше правой границы
+    t = max(-(camera.height-WIN_HEIGHT), t) # Не движемся дальше нижней границы
+    t = min(0, t)                           # Не движемся дальше верхней границы
+
+    return pygame.Rect(l, t, w, h)
+
+
+def level():
+    bg = pygame.Surface((WIN_WIDTH, WIN_HEIGHT))
+    # будем использовать как фон
+    bg.blit(BACKGROUND_IMAGE, (0, 0))  # Заливаем поверхность сплошным цветом
+
+    hero = Player(50, 700)  # создаем героя по (x,y) координатам
+    left = right = False  # по умолчанию - стоим
+    up = False
+
+    entities = pygame.sprite.Group()  # Все объекты
+    platforms = []  # то, во что мы будем врезаться или опираться
+
+    entities.add(hero)
+
+    level = load_level('level1.txt')
+
+    timer = pygame.time.Clock()
+    x = y = 0
+    for row in level:
+        for col in row:
+            if col == "-":
+                pf = Platform(x, y)
+                entities.add(pf)
+                platforms.append(pf)
+            if col == "%":
+                lv = Lava(x, y)
+                entities.add(lv)
+                platforms.append(lv)
+
+            x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
+        y += PLATFORM_HEIGHT  # то же самое и с высотой
+        x = 0  # на каждой новой строчке начинаем с нуля
+
+    total_level_width = len(level[0]) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
+    total_level_height = len(level) * PLATFORM_HEIGHT  # высоту
+
+    camera = Camera(camera_configure, total_level_width, total_level_height)
+    menu_button = ImageButton(10, 150, 66, 66, "<-", "green_button_play.png",
+                              'green_button_play_hover.png')
+    raning = True
+    while raning:
+        timer.tick(60)
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                raning = False
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_UP:
+                up = True
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_LEFT:
+                left = True
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_RIGHT:
+                right = True
+            if e.type == pygame.KEYUP and e.key == pygame.K_UP:
+                up = False
+            if e.type == pygame.KEYUP and e.key == pygame.K_RIGHT:
+                right = False
+            if e.type == pygame.KEYUP and e.key == pygame.K_LEFT:
+                left = False
+            if e.type == pygame.MOUSEBUTTONDOWN:
+                x, y = e.pos
+                if 10 <= x and x <= 10 + 66 and (150 <= y and y <= 50 + 66):
+                    raning = False
+                    fade()
+                    main_menu()
+            for btn in [menu_button]:
+                btn.handle_event(e)
+        for btn in [menu_button]:
+            btn.check_hover(pygame.mouse.get_pos())
+            btn.draw(screen)
+        pygame.display.flip()
+        screen.blit(bg, (0, 0))
+        camera.update(hero)  # камера движется за игроком
+        hero.update(left, right, up, platforms)  # передвижение
+        for e in entities:
+            screen.blit(e.image, camera.apply(e))
+        pygame.display.update()
 
 
 if __name__ == '__main__':
