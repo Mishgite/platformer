@@ -92,7 +92,7 @@ def setting_menu():
                 x, y = event.pos
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (250 <= y and y <= 250 + 74):
                     if data_now == 'background.jpg':
-                        cur.execute('''UPDATE play SET values = 1 WHERE id = 1''').fetchall()
+                        cur.execute('''UPDATE play SET values = '1' WHERE id = 1''').fetchone()
                         main_background = load_image(data[1])
                         data_now = data[1]
                     elif data_now == 'background1.jpg':
