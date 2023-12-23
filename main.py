@@ -48,11 +48,12 @@ ANIMATION_DELAY = 0.1
 
 ANIMATION_RIGHT = ['Run/run1.png', 'Run/run2.png', 'Run/run3.png', 'Run/run4.png', 'Run/run5.png', 'Run/run6.png',
                    'Run/run7.png', 'Run/run8.png']
-ANIMATION_LEFT = ['r1.png', 'r1.png', 'r1.png', 'r1.png', 'r1.png']
-ANIMATION_JUMP_LEFT = [('r1.png', 0.1)]
-ANIMATION_JUMP_RIGHT = [('r1.png', 0.1)]
-ANIMATION_JUMP = [('r1.png', 0.1)]
-ANIMATION_STAY = [('r1.png', 0.1)]
+ANIMATION_LEFT = ['Run1/run1.png', 'Run1/run2.png', 'Run1/run3.png', 'Run1/run4.png', 'Run1/run5.png', 'Run1/run6.png',
+                  'Run1/run7.png', 'Run1/run8.png']
+ANIMATION_JUMP_LEFT = [('Poses/Jumpl.png', 0.1)]
+ANIMATION_JUMP_RIGHT = [('Poses/Jumpr.png', 0.1)]
+ANIMATION_JUMP = [('Poses/r1.png', 0.1)]
+ANIMATION_STAY = [('Poses/r1.png', 0.1)]
 
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
@@ -81,7 +82,7 @@ def main_menu():
         screen.fill((0, 0, 0))
         screen.blit(main_background, (0, 0))
         font = pygame.font.Font(None, 72)
-        text_surface = font.render("MENU TEST", True, (255, 255, 255))
+        text_surface = font.render("MENU", True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=(WIDTH/2, 100))
         screen.blit(text_surface, text_rect)
         for event in pygame.event.get():
