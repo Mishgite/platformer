@@ -40,7 +40,7 @@ main_background = load_image(data[image])
 data_now = data[image]
 
 MOVE_SPEED = 7
-WIDTH1 = 22
+WIDTH1 = 42
 HEIGHT1 = 42
 COLOR = "#888888"
 JUMP_POWER = 10
