@@ -4,6 +4,7 @@ import os
 import pygame
 import sqlite3
 from button import ImageButton
+import time
 
 
 def load_image(name, colorkey=None):
@@ -70,6 +71,9 @@ WIN_WIDTH = 1000
 WIN_HEIGHT = 760
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 BACKGROUND_IMAGE = load_image('backgroundl.png')
+
+DOOR_WIDTH = 59
+DOOR_HEIGHT = 63
 
 
 def main_menu():
@@ -370,6 +374,18 @@ class Lava(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
 
 
+class Door(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((DOOR_WIDTH, DOOR_HEIGHT))
+        self.image = load_image("door.png")
+        self.rect = pygame.Rect(x, y, DOOR_WIDTH, DOOR_HEIGHT)
+
+    def collide(self):
+        self.image = load_image("door_open.png")
+        self.rect = pygame.Rect((self.rect.x, self.rect.y, DOOR_WIDTH + 3, DOOR_HEIGHT))
+
+
 class Camera(object):
     def __init__(self, camera_func, width, height):
         self.camera_func = camera_func
@@ -396,6 +412,8 @@ def camera_configure(camera, target_rect):
 
 
 def level():
+    global level_now
+
     bg = pygame.Surface((WIN_WIDTH, WIN_HEIGHT))
     # будем использовать как фон
     bg.blit(BACKGROUND_IMAGE, (0, 0))  # Заливаем поверхность сплошным цветом
@@ -409,11 +427,11 @@ def level():
 
     entities.add(hero)
 
-    level = load_level(level_data[level_now])
+    lvl = load_level(level_data[level_now])
 
     timer = pygame.time.Clock()
     x = y = 0
-    for row in level:
+    for row in lvl:
         for col in row:
             if col == "-":
                 pf = Platform(x, y)
@@ -423,17 +441,18 @@ def level():
                 lv = Lava(x, y)
                 entities.add(lv)
                 platforms.append(lv)
+            if col == '|':
+                door = Door(x, y)
+                entities.add(door)
 
             x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
         y += PLATFORM_HEIGHT  # то же самое и с высотой
         x = 0  # на каждой новой строчке начинаем с нуля
 
-    total_level_width = len(level[0]) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
-    total_level_height = len(level) * PLATFORM_HEIGHT  # высоту
+    total_level_width = len(lvl[0]) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
+    total_level_height = len(lvl) * PLATFORM_HEIGHT  # высоту
 
     camera = Camera(camera_configure, total_level_width, total_level_height)
-    menu_button = ImageButton(10, 150, 66, 66, "<-", "green_button_play.png",
-                              'green_button_play_hover.png')
     raning = True
     while raning:
         timer.tick(60)
@@ -459,15 +478,17 @@ def level():
                     raning = False
                     fade()
                     main_menu()
-            for btn in [menu_button]:
-                btn.handle_event(e)
-        for btn in [menu_button]:
-            btn.check_hover(pygame.mouse.get_pos())
-            btn.draw(screen)
+
         pygame.display.flip()
         screen.blit(bg, (0, 0))
         camera.update(hero)  # камера движется за игроком
         hero.update(left, right, up, platforms)  # передвижение
+        if pygame.sprite.collide_rect(hero, door):
+            door.collide()
+            fade()
+            raning = False
+            level_now += 1
+            level()
         for e in entities:
             screen.blit(e.image, camera.apply(e))
         pygame.display.update()
