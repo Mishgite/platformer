@@ -27,8 +27,9 @@ con = sqlite3.connect("play_db.sqlite")
 cur = con.cursor()
 result = cur.execute("""SELECT * FROM play""").fetchall()
 image = result[0][1]
-level = result[1][1]
+level_now = result[1][1]
 data = ['background.jpg', 'background1.jpg', 'background2.jpg', 'background3.jpg']
+level_data = ['level1.txt', 'level2.txt', 'level3.txt', 'level4.txt']
 pygame.init()
 WIDTH, HEIGHT = 1000, 760
 MAX_FPS = 80
@@ -157,13 +158,14 @@ def setting_menu():
 
 
 def new_game():
+    global level_now
     level1_button = ImageButton(WIDTH / 2 - (252 / 2), 150, 252, 74, "первый уровень", "green_button.png",
                                 'green_button_hover.png')
     level2_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "второй уровень",
                                 "green_button.png", 'green_button_hover.png')
     level3_button = ImageButton(WIDTH / 2 - (252 / 2), 350, 252, 74, "третий уровень", "green_button.png",
                                 'green_button_hover.png')
-    level4_button = ImageButton(WIDTH / 2 - (252 / 2), 450, 252, 74, "четвёртыйй уровень", "green_button.png",
+    level4_button = ImageButton(WIDTH / 2 - (252 / 2), 450, 252, 74, "четвёртый уровень", "green_button.png",
                                 'green_button_hover.png')
     back_button = ImageButton(WIDTH / 2 - (252 / 2), 550, 252, 74, "Выйти", "green_button.png",
                               'green_button_hover.png')
@@ -180,6 +182,19 @@ def new_game():
                 x, y = event.pos
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (150 <= y and y <= 150 + 74):
                     fade()
+                    level_now = 0
+                    level()
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (250 <= y and y <= 250 + 74):
+                    fade()
+                    level_now = 1
+                    level()
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (350 <= y and y <= 350 + 74):
+                    fade()
+                    level_now = 2
+                    level()
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (450 <= y and y <= 450 + 74):
+                    fade()
+                    level_now = 3
                     level()
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (550 <= y and y <= 550 + 74):
                     fade()
@@ -218,7 +233,7 @@ def continuation():
                                       "green_button.png", 'green_button_hover.png')
     level3_button = ImageButton(WIDTH / 2 - (252 / 2), 350, 252, 74, "третий уровень", "green_button.png",
                                   'green_button_hover.png')
-    level4_button = ImageButton(WIDTH / 2 - (252 / 2), 450, 252, 74, "четвёртыйй уровень", "green_button.png",
+    level4_button = ImageButton(WIDTH / 2 - (252 / 2), 450, 252, 74, "четвёртый уровень", "green_button.png",
                               'green_button_hover.png')
     back_button = ImageButton(WIDTH / 2 - (252 / 2), 550, 252, 74, "Выйти", "green_button.png",
                               'green_button_hover.png')
@@ -394,7 +409,7 @@ def level():
 
     entities.add(hero)
 
-    level = load_level('level1.txt')
+    level = load_level(level_data[level_now])
 
     timer = pygame.time.Clock()
     x = y = 0
