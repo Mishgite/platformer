@@ -41,7 +41,7 @@ data_now = data[image]
 
 MOVE_SPEED = 7
 WIDTH1 = 42
-HEIGHT1 = 42
+HEIGHT1 = 52
 COLOR = "#888888"
 JUMP_POWER = 10
 GRAVITY = 0.35
