@@ -117,7 +117,7 @@ def main_menu():
 
 def setting_menu():
     global main_background, data_now
-    video_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "Видио", "green_button.png",
+    video_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "Видео", "green_button.png",
                                   'green_button_hover.png')
     back_button = ImageButton(WIDTH / 2 - (252 / 2), 350, 252, 74, "Выйти", "green_button.png",
                               'green_button_hover.png')
@@ -134,7 +134,7 @@ def setting_menu():
                 x, y = event.pos
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (250 <= y and y <= 250 + 74):
                     if data_now == 'background.jpg':
-                        # cur.execute('''UPDATE play SET values = '1' WHERE id = 1''').fetchone()
+                        # cur.execute("""UPDATE play SET values = 1 WHERE id = 1""")
                         main_background = load_image(data[1])
                         data_now = data[1]
                     elif data_now == 'background1.jpg':
@@ -289,7 +289,7 @@ class Player(pygame.sprite.Sprite):
 
         self.boltAnimStay = pyganim.PygAnimation(ANIMATION_STAY)
         self.boltAnimStay.play()
-        self.boltAnimStay.blit(self.image, (0, 0))  # По-умолчанию, стоим
+        self.boltAnimStay.blit(self.image, (0, 0))  # По умолчанию стоим
 
         self.boltAnimJumpLeft = pyganim.PygAnimation(ANIMATION_JUMP_LEFT)
         self.boltAnimJumpLeft.play()
@@ -348,7 +348,7 @@ class Player(pygame.sprite.Sprite):
                 if yvel < 0:
                     self.rect.top = p.rect.bottom
                     self.yvel = 0
-#КОНЕЦ ПЕРСОНАЖА
+# КОНЕЦ ПЕРСОНАЖА
 
 
 class Platform(pygame.sprite.Sprite):
