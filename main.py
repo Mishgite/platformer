@@ -438,7 +438,8 @@ def level():
     while raning:
         timer.tick(60)
         for e in pygame.event.get():
-            if e.type == pygame.QUIT:
+            if e.type == pygame.QUIT or e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                fade()
                 raning = False
             if e.type == pygame.KEYDOWN and e.key == pygame.K_UP:
                 up = True
