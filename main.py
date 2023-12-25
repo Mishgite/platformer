@@ -5,6 +5,7 @@ import pygame
 import sqlite3
 from button import ImageButton
 import time
+import imageio
 
 
 def load_image(name, colorkey=None):
@@ -37,10 +38,12 @@ MAX_FPS = 80
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Платформер')
+icon = pygame.image.load('mainicon.png')
+pygame.display.set_icon(icon)
 main_background = load_image(data[image])
 data_now = data[image]
 
-MOVE_SPEED = 7
+MOVE_SPEED = 5
 WIDTH1 = 49
 HEIGHT1 = 52
 COLOR = "#888888"
@@ -75,7 +78,7 @@ ICON_DIR = os.path.dirname(__file__)
 WIN_WIDTH = 1000
 WIN_HEIGHT = 760
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
-BACKGROUND_IMAGE = load_image('backgroundl.png')
+BACKGROUND_IMAGE = load_image('background3.png')
 
 DOOR_WIDTH = 59
 DOOR_HEIGHT = 63
@@ -411,9 +414,12 @@ class Key(pygame.sprite.Sprite):
         self.door = door
 
     def pickup(self):
-        self.pickuped = True
-        self.image = None
-        self.door.key_pickuped = True
+        if not self.pickuped:
+            self.pickuped = True
+            self.image = pygame.Surface((0, 0))
+            self.door.key_pickuped = True
+            show_message('Ключ подобран', 500, 400)
+            print('heee yooo')
 
 
 class Camera(object):
@@ -439,6 +445,21 @@ def camera_configure(camera, target_rect):
     t = min(0, t)                           # Не движемся дальше верхней границы
 
     return pygame.Rect(l, t, w, h)
+
+black = (0, 0, 0)
+white = (255, 255, 255)
+
+
+def show_message(message, x, y, duration=2000):
+    font = pygame.font.Font(None, 36)
+    text = font.render(message, True, white)
+    screen.blit(text, (x, y))
+    pygame.display.flip()
+
+    # Ждем несколько секунд, затем очищаем сообщение
+    time.sleep(duration / 1000)
+    screen.fill(black)
+    pygame.display.flip()
 
 
 def level():
@@ -481,6 +502,7 @@ def level():
         x = 0  # на каждой новой строчке начинаем с нуля
 
     key = Key(*key_coords, door)
+    entities.add(key)
 
     total_level_width = len(lvl[0]) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
     total_level_height = len(lvl) * PLATFORM_HEIGHT  # высоту
