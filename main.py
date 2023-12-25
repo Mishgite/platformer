@@ -71,7 +71,8 @@ PLATFORMS_TEXTURES = {chr(92): 'platform_floor_cornerRW.png', '/': 'platform_flo
                       '_': 'platform_floor.png', '=': 'platform_ceiling.png', '-': 'platform.png',
                       '[': 'platform_vertically.png', ']': 'platform_horizontally.png',
                       '{': 'platform_floor3N.png', '}': 'platform_floor3H.png',
-                      ')': 'platform_floor3R.png', '(': 'platform_floor3L.png'
+                      ')': 'platform_floor3R.png', '(': 'platform_floor3L.png',
+                      'i': 'platform_wall_L.png', 'I': 'platform_wall_R.png'
                       }
 
 
