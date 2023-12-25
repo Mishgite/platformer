@@ -5,6 +5,7 @@ import pygame
 import sqlite3
 from button import ImageButton
 import time
+import imageio
 
 
 def load_image(name, colorkey=None):
@@ -36,6 +37,8 @@ WIDTH, HEIGHT = 1000, 760
 MAX_FPS = 80
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+icon = pygame.image.load('mainicon.png')
+pygame.display.set_icon(icon)
 pygame.display.set_caption('Платформер')
 main_background = load_image(data[image])
 data_now = data[image]
@@ -75,7 +78,7 @@ ICON_DIR = os.path.dirname(__file__)
 WIN_WIDTH = 1000
 WIN_HEIGHT = 760
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
-BACKGROUND_IMAGE = load_image('backgroundl.png')
+BACKGROUND_IMAGE = load_image('background3.png')
 
 DOOR_WIDTH = 59
 DOOR_HEIGHT = 63
