@@ -80,6 +80,9 @@ BACKGROUND_IMAGE = load_image('backgroundl.png')
 DOOR_WIDTH = 59
 DOOR_HEIGHT = 63
 
+KEY_WIDTH = 34
+KEY_HEIGHT = 49
+
 
 def main_menu():
     start_button = ImageButton(WIDTH / 2 - (252 / 2), 150, 252, 74, "Новая игра", "green_button.png", 'green_button_hover.png')
@@ -386,14 +389,31 @@ class Door(pygame.sprite.Sprite):
         self.image = load_image("door.png")
         self.rect = pygame.Rect(x, y, DOOR_WIDTH, DOOR_HEIGHT)
         self.opened = False
+        self.key_pickuped = False
 
     def collide(self):
         if not self.opened:
-            self.image = load_image("door_open.png")
-            self.opened = not self.opened
-            return False
+            if self.key_pickuped:
+                self.image = load_image("door_open.png")
+                self.opened = not self.opened
+                return False
+        else:
+            return True
 
-        return True
+
+class Key(pygame.sprite.Sprite):
+    def __init__(self, x, y, door: Door):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((KEY_WIDTH, KEY_HEIGHT))
+        self.image = load_image("certificate_key.jpg")
+        self.rect = pygame.Rect(x, y, KEY_WIDTH, KEY_HEIGHT)
+        self.pickuped = False
+        self.door = door
+
+    def pickup(self):
+        self.pickuped = True
+        self.image = None
+        self.door.key_pickuped = True
 
 
 class Camera(object):
@@ -453,10 +473,14 @@ def level():
                 platforms.append(lv)
             if col == '|':
                 door = Door(x, y)
+            if col == '*':
+                key_coords = x, y
 
             x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
         y += PLATFORM_HEIGHT  # то же самое и с высотой
         x = 0  # на каждой новой строчке начинаем с нуля
+
+    key = Key(*key_coords, door)
 
     total_level_width = len(lvl[0]) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
     total_level_height = len(lvl) * PLATFORM_HEIGHT  # высоту
@@ -487,6 +511,8 @@ def level():
                     raning = False
                     level_now += 1
                     level()
+            if pygame.sprite.collide_rect(hero, key):
+                key.pickup()
             if e.type == pygame.MOUSEBUTTONDOWN:
                 x, y = e.pos
                 if 10 <= x and x <= 10 + 66 and (150 <= y and y <= 50 + 66):
