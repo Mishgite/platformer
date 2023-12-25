@@ -37,13 +37,13 @@ WIDTH, HEIGHT = 1000, 760
 MAX_FPS = 80
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Платформер')
 icon = pygame.image.load('mainicon.png')
 pygame.display.set_icon(icon)
-pygame.display.set_caption('Платформер')
 main_background = load_image(data[image])
 data_now = data[image]
 
-MOVE_SPEED = 7
+MOVE_SPEED = 5
 WIDTH1 = 49
 HEIGHT1 = 52
 COLOR = "#888888"
