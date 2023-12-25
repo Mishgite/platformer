@@ -418,6 +418,7 @@ class Key(pygame.sprite.Sprite):
             self.pickuped = True
             self.image = pygame.Surface((0, 0))
             self.door.key_pickuped = True
+            show_message('Ключ подобран', 500, 400)
             print('heee yooo')
 
 
@@ -444,6 +445,21 @@ def camera_configure(camera, target_rect):
     t = min(0, t)                           # Не движемся дальше верхней границы
 
     return pygame.Rect(l, t, w, h)
+
+black = (0, 0, 0)
+white = (255, 255, 255)
+
+
+def show_message(message, x, y, duration=2000):
+    font = pygame.font.Font(None, 36)
+    text = font.render(message, True, white)
+    screen.blit(text, (x, y))
+    pygame.display.flip()
+
+    # Ждем несколько секунд, затем очищаем сообщение
+    time.sleep(duration / 1000)
+    screen.fill(black)
+    pygame.display.flip()
 
 
 def level():
