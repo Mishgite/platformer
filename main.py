@@ -411,9 +411,11 @@ class Key(pygame.sprite.Sprite):
         self.door = door
 
     def pickup(self):
-        self.pickuped = True
-        self.image = None
-        self.door.key_pickuped = True
+        if not self.pickuped:
+            self.pickuped = True
+            self.image = pygame.Surface((0, 0))
+            self.door.key_pickuped = True
+            print('heee yooo')
 
 
 class Camera(object):
@@ -481,6 +483,7 @@ def level():
         x = 0  # на каждой новой строчке начинаем с нуля
 
     key = Key(*key_coords, door)
+    entities.add(key)
 
     total_level_width = len(lvl[0]) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
     total_level_height = len(lvl) * PLATFORM_HEIGHT  # высоту
