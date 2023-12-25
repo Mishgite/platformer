@@ -66,7 +66,8 @@ PLATFORM_COLOR = "#FF6262"
 ICON_DIR = os.path.dirname(__file__)
 PLATFORMS_TEXTURES = {chr(92): 'platform_floor_cornerRW.png', '/': 'platform_floor_cornerRN.png',
                       '!': 'platform_floor_cornerLN.png', '?': 'platform_floor_cornerLW.png',
-                      '_': 'platform_floor.png', '=': 'platform_ceiling.png', '-': 'platform.png'
+                      '_': 'platform_floor.png', '=': 'platform_ceiling.png', '-': 'platform.png',
+                      '[': 'platform_vertically.png', ']': 'platform_horizontally.png'
                       }
 
 
