@@ -59,8 +59,6 @@ ANIMATION_JUMP_LEFT = [('Poses/Jumpl.png', 0.1)]
 ANIMATION_JUMP_RIGHT = [('Poses/Jumpr.png', 0.1)]
 ANIMATION_JUMP = [('Poses/r1.png', 0.1)]
 ANIMATION_STAY = [('Poses/r1.png', 0.1)]
-KEY_ANIMATION = ['KeyPickup/key1.jpg', 'KeyPickup/key2.jpg', 'KeyPickup/key3.jpg', 'KeyPickup/key4.jpg',
-                 'KeyPickup/key5.jpg']
 
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
@@ -418,16 +416,12 @@ class Key(pygame.sprite.Sprite):
         self.pickuped = False
         self.door = door
 
-        key_anim = [(anim, ANIMATION_DELAY) for anim in KEY_ANIMATION]
-        self.dissapear_anim = pyganim.PygAnimation(key_anim)
-        self.dissapear_anim.play()
-
     def pickup(self):
         if not self.pickuped:
             self.pickuped = True
+            self.image = pygame.Surface((0, 0))
             self.door.key_pickuped = True
-            # show_message('Ключ подобран', 10, 10)
-            self.dissapear_anim.blit(self.image, (0, 0))
+            show_message('Ключ подобран', 10, 10)
 
 
 class Camera(object):
