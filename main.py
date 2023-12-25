@@ -41,11 +41,11 @@ main_background = load_image(data[image])
 data_now = data[image]
 
 MOVE_SPEED = 7
-WIDTH1 = 32
+WIDTH1 = 49
 HEIGHT1 = 52
 COLOR = "#888888"
-JUMP_POWER = 10
-GRAVITY = 0.35
+JUMP_POWER = 12
+GRAVITY = 0.5
 ANIMATION_DELAY = 0.1
 
 ANIMATION_RIGHT = ['Run/run1.png', 'Run/run2.png', 'Run/run3.png', 'Run/run4.png', 'Run/run5.png', 'Run/run6.png',
@@ -65,7 +65,7 @@ PLATFORMS_TEXTURES = {chr(92): 'platform_floor_cornerRW.png', '/': 'platform_flo
                       '!': 'platform_floor_cornerLN.png', '?': 'platform_floor_cornerLW.png',
                       '_': 'platform_floor.png', '=': 'platform_ceiling.png', '-': 'platform.png'
                       }
-print(chr(92))
+
 
 LAVA_WIDTH = 32
 LAVA_HEIGHT = 32
@@ -390,7 +390,6 @@ class Door(pygame.sprite.Sprite):
     def collide(self):
         if not self.opened:
             self.image = load_image("door_open.png")
-            self.rect = pygame.Rect((self.rect.x, self.rect.y, DOOR_WIDTH + 3, DOOR_HEIGHT))
             self.opened = not self.opened
             return False
 
