@@ -48,7 +48,7 @@ WIDTH1 = 49
 HEIGHT1 = 52
 COLOR = "#888888"
 JUMP_POWER = 12
-GRAVITY = 0.5
+GRAVITY = 0.4
 ANIMATION_DELAY = 0.1
 
 ANIMATION_RIGHT = ['Run/run1.png', 'Run/run2.png', 'Run/run3.png', 'Run/run4.png', 'Run/run5.png', 'Run/run6.png',
@@ -59,6 +59,8 @@ ANIMATION_JUMP_LEFT = [('Poses/Jumpl.png', 0.1)]
 ANIMATION_JUMP_RIGHT = [('Poses/Jumpr.png', 0.1)]
 ANIMATION_JUMP = [('Poses/r1.png', 0.1)]
 ANIMATION_STAY = [('Poses/r1.png', 0.1)]
+KEY_ANIMATION = ['KeyPickup/key1.jpg', 'KeyPickup/key2.jpg', 'KeyPickup/key3.jpg', 'KeyPickup/key4.jpg',
+                 'KeyPickup/key5.jpg']
 
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
@@ -413,13 +415,16 @@ class Key(pygame.sprite.Sprite):
         self.pickuped = False
         self.door = door
 
+        key_anim = [(anim, ANIMATION_DELAY) for anim in KEY_ANIMATION]
+        self.dissapear_anim = pyganim.PygAnimation(key_anim)
+        self.dissapear_anim.play()
+
     def pickup(self):
         if not self.pickuped:
             self.pickuped = True
-            self.image = pygame.Surface((0, 0))
             self.door.key_pickuped = True
-            show_message('Ключ подобран', 500, 400)
-            print('heee yooo')
+            # show_message('Ключ подобран', 10, 10)
+            self.dissapear_anim.blit(self.image, (0, 0))
 
 
 class Camera(object):
@@ -446,11 +451,12 @@ def camera_configure(camera, target_rect):
 
     return pygame.Rect(l, t, w, h)
 
+
 black = (0, 0, 0)
 white = (255, 255, 255)
 
 
-def show_message(message, x, y, duration=2000):
+def show_message(message, x, y, duration=1000):
     font = pygame.font.Font(None, 36)
     text = font.render(message, True, white)
     screen.blit(text, (x, y))
