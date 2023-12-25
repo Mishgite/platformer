@@ -61,6 +61,11 @@ PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
 ICON_DIR = os.path.dirname(__file__)
+PLATFORMS_TEXTURES = {chr(92): 'platform_floor_cornerRW.png', '/': 'platform_floor_cornerRN.png',
+                      '!': 'platform_floor_cornerLN.png', '?': 'platform_floor_cornerLW.png',
+                      '_': 'platform_floor.png', '=': 'platform_ceiling.png', '-': 'platform.png'
+                      }
+print(chr(92))
 
 LAVA_WIDTH = 32
 LAVA_HEIGHT = 32
@@ -356,11 +361,11 @@ class Player(pygame.sprite.Sprite):
 
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, img):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
         self.image.fill(pygame.Color(PLATFORM_COLOR))
-        self.image = load_image("platform.png")
+        self.image = load_image(img)
         self.rect = pygame.Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
 # КОНЕЦ ПЛАТФОРМЫ
 
@@ -380,10 +385,16 @@ class Door(pygame.sprite.Sprite):
         self.image = pygame.Surface((DOOR_WIDTH, DOOR_HEIGHT))
         self.image = load_image("door.png")
         self.rect = pygame.Rect(x, y, DOOR_WIDTH, DOOR_HEIGHT)
+        self.opened = False
 
     def collide(self):
-        self.image = load_image("door_open.png")
-        self.rect = pygame.Rect((self.rect.x, self.rect.y, DOOR_WIDTH + 3, DOOR_HEIGHT))
+        if not self.opened:
+            self.image = load_image("door_open.png")
+            self.rect = pygame.Rect((self.rect.x, self.rect.y, DOOR_WIDTH + 3, DOOR_HEIGHT))
+            self.opened = not self.opened
+            return False
+
+        return True
 
 
 class Camera(object):
@@ -433,8 +444,8 @@ def level():
     x = y = 0
     for row in lvl:
         for col in row:
-            if col == "-":
-                pf = Platform(x, y)
+            if col in PLATFORMS_TEXTURES.keys():
+                pf = Platform(x, y, PLATFORMS_TEXTURES[col])
                 entities.add(pf)
                 platforms.append(pf)
             if col == "%":
@@ -443,7 +454,6 @@ def level():
                 platforms.append(lv)
             if col == '|':
                 door = Door(x, y)
-                entities.add(door)
 
             x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
         y += PLATFORM_HEIGHT  # то же самое и с высотой
@@ -472,6 +482,12 @@ def level():
                 right = False
             if e.type == pygame.KEYUP and e.key == pygame.K_LEFT:
                 left = False
+            if pygame.sprite.collide_rect(hero, door) and e.type == pygame.KEYDOWN and e.key == pygame.K_e:
+                if door.collide():
+                    fade()
+                    raning = False
+                    level_now += 1
+                    level()
             if e.type == pygame.MOUSEBUTTONDOWN:
                 x, y = e.pos
                 if 10 <= x and x <= 10 + 66 and (150 <= y and y <= 50 + 66):
@@ -483,12 +499,7 @@ def level():
         screen.blit(bg, (0, 0))
         camera.update(hero)  # камера движется за игроком
         hero.update(left, right, up, platforms)  # передвижение
-        if pygame.sprite.collide_rect(hero, door):
-            door.collide()
-            fade()
-            raning = False
-            level_now += 1
-            level()
+        screen.blit(door.image, camera.apply(door))
         for e in entities:
             screen.blit(e.image, camera.apply(e))
         pygame.display.update()
