@@ -80,9 +80,18 @@ ICON_DIR = os.path.dirname(__file__)
 WIN_WIDTH = 1000
 WIN_HEIGHT = 760
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
-BACKGROUND_IMAGE = load_image('background3.png')
-BACKGROUND_IMAGE_DICT = {'1': 'background3.png', '2': 'background_underground1.png',
-                         '3': 'background3lvl.png', '4': ''}
+
+BACKGROUND_IMAGE_DICT = dict()
+conn = sqlite3.connect('play_db.sqlite')
+cursor = conn.cursor()
+cursor.execute("SELECT name FROM level_background")
+result = cursor.fetchall()
+k = 1
+for i in result:
+    BACKGROUND_IMAGE_DICT[str(k)] = i[0]
+    k += 1
+conn.close()
+
 
 DOOR_WIDTH = 59
 DOOR_HEIGHT = 63
