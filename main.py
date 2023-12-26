@@ -7,6 +7,7 @@ from button import ImageButton
 import time
 import pygame.mixer
 
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
@@ -331,6 +332,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, WIDTH1, HEIGHT1)
         self.image.set_colorkey(pygame.Color(COLOR))
         self.pickuping_key = False
+        self.time_from_dmg = 0
 
         boltAnim = []
         for anim in ANIMATION_RIGHT:
@@ -363,7 +365,7 @@ class Player(pygame.sprite.Sprite):
         self.boltAnimJump = pyganim.PygAnimation(ANIMATION_JUMP)
         self.boltAnimJump.play()
 
-    def update(self, left, right, up, platforms):
+    def update(self, left, right, up, platforms, dmg_deal):
         if self.HP <= 0:
             self.alive = False
         elif self.pickuping_key:
@@ -400,11 +402,11 @@ class Player(pygame.sprite.Sprite):
 
             self.onGround = False
             self.rect.y += self.yvel
-            self.collide(0, self.yvel, platforms)
+            self.collide(0, self.yvel, platforms, dmg_deal)
             self.rect.x += self.xvel
-            self.collide(self.xvel, 0, platforms)
+            self.collide(self.xvel, 0, platforms, dmg_deal)
 
-    def collide(self, xvel, yvel, platforms):
+    def collide(self, xvel, yvel, platforms, dmg_deal):
         for p in platforms:
             if pygame.sprite.collide_rect(self, p):
                 if xvel > 0:
@@ -418,6 +420,11 @@ class Player(pygame.sprite.Sprite):
                 if yvel < 0:
                     self.rect.top = p.rect.bottom
                     self.yvel = 0
+        for d in dmg_deal:
+            if pygame.sprite.collide_rect(self, d):
+                if (pygame.time.get_ticks() - self.time_from_dmg) / 1000 >= 1:
+                    self.HP -= d.DPS
+                    self.time_from_dmg = pygame.time.get_ticks()
 # КОНЕЦ ПЕРСОНАЖА
 
 
@@ -540,6 +547,7 @@ def level():
 
     entities = pygame.sprite.Group()  # Все объекты
     platforms = []  # то, во что мы будем врезаться или опираться
+    damage_dealing = list()
 
     entities.add(hero)
 
@@ -556,7 +564,7 @@ def level():
             if col == "%":
                 lv = Lava(x, y)
                 entities.add(lv)
-                platforms.append(lv)
+                damage_dealing.append(lv)
             if col == '|':
                 door = Door(x, y)
             if col == '*':
@@ -617,7 +625,7 @@ def level():
         pygame.display.flip()
         screen.blit(bg, (0, 0))
         camera.update(hero)  # камера движется за игроком
-        hero.update(left, right, up, platforms)  # передвижение
+        hero.update(left, right, up, platforms, damage_dealing)  # передвижение
         screen.blit(door.image, camera.apply(door))
         for e in entities:
             screen.blit(e.image, camera.apply(e))
