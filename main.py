@@ -378,11 +378,11 @@ class Player(pygame.sprite.Sprite):
             self.rect.width = WIDTH1 + 30
             self.image.fill(pygame.Color(COLOR))
             self.dyingAnim.blit(self.image, (0, 0))
-            print(self.dyingAnim.currentFrameNum)
             if self.dyingAnim.currentFrameNum == 4:
                 time.sleep(1)
                 self.alive = False
         elif self.pickuping_key:
+            self.image.fill(pygame.Color(COLOR))
             self.keyPickupAnim.blit(self.image, (0, 0))
             if self.keyPickupAnim.currentFrameNum == 3:
                 self.pickuping_key = False
