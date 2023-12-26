@@ -28,7 +28,7 @@ cur = con.cursor()
 result = cur.execute("""SELECT * FROM play""").fetchall()
 image = result[0][1]
 level_now = result[1][1]
-data = ['background3.png', 'background_underground1.png', '', '']
+data = ['background.jpg', 'background1.jpg', 'background2.jpg', '']
 level_data = ['level1.txt', 'level2.txt', 'level3.txt', 'level4.txt']
 pygame.init()
 WIDTH, HEIGHT = 1000, 760
