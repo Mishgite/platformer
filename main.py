@@ -5,8 +5,7 @@ import pygame
 import sqlite3
 from button import ImageButton
 import time
-import imageio
-
+import pygame.mixer
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
@@ -30,7 +29,7 @@ cur = con.cursor()
 result = cur.execute("""SELECT * FROM play""").fetchall()
 image = result[0][1]
 level_now = result[1][1]
-data = ['background.jpg', 'background1.jpg', 'background2.jpg', 'background3.jpg']
+data = ['background.jpg', 'background1.jpg', 'background2.jpg', '']
 level_data = ['level1.txt', 'level2.txt', 'level3.txt', 'level4.txt']
 pygame.init()
 WIDTH, HEIGHT = 1000, 760
@@ -82,16 +81,43 @@ ICON_DIR = os.path.dirname(__file__)
 WIN_WIDTH = 1000
 WIN_HEIGHT = 760
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
-BACKGROUND_IMAGE = load_image('background3.png')
+
+BACKGROUND_IMAGE_DICT = dict()
+conn = sqlite3.connect('play_db.sqlite')
+cursor = conn.cursor()
+cursor.execute("SELECT name FROM level_background")
+result = cursor.fetchall()
+k = 1
+for i in result:
+    BACKGROUND_IMAGE_DICT[str(k)] = i[0]
+    k += 1
+conn.close()
+
 
 DOOR_WIDTH = 59
 DOOR_HEIGHT = 63
 
 KEY_WIDTH = 34
 KEY_HEIGHT = 49
+LEVEL_MUSIC_DICT = dict()
+conn = sqlite3.connect('play_db.sqlite')
+cursor = conn.cursor()
+cursor.execute("SELECT music_name FROM music WHERE level_id > 0")
+result = cursor.fetchall()
+k = 1
+for i in result:
+    print(i)
+    LEVEL_MUSIC_DICT[str(k)] = i[0]
+    k += 1
+conn.close()
+
 
 
 def main_menu():
+    pygame.mixer.init()
+    music = pygame.mixer.Sound('music\mainmenu.mp3')
+    music.set_volume(0.1)
+    music.play()
     start_button = ImageButton(WIDTH / 2 - (252 / 2), 150, 252, 74, "Новая игра", "green_button.png", 'green_button_hover.png')
     continuation_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "Продолжение",
                                       "green_button.png", 'green_button_hover.png')
@@ -200,23 +226,28 @@ def new_game():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (150 <= y and y <= 150 + 74):
+                    pygame.mixer.stop()
                     fade()
                     level_now = 0
                     level()
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (250 <= y and y <= 250 + 74):
                     fade()
+                    pygame.mixer.stop()
                     level_now = 1
                     level()
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (350 <= y and y <= 350 + 74):
                     fade()
+                    pygame.mixer.stop()
                     level_now = 2
                     level()
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (450 <= y and y <= 450 + 74):
                     fade()
+                    pygame.mixer.stop()
                     level_now = 3
                     level()
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (550 <= y and y <= 550 + 74):
                     fade()
+                    pygame.mixer.stop()
                     main_menu()
             for btn in [level1_button, level2_button, level3_button, level4_button, back_button]:
                 btn.handle_event(event)
@@ -268,9 +299,11 @@ def continuation():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (150 <= y and y <= 150 + 74):
+                    pygame.mixer.stop()
                     fade()
                     level()
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (550 <= y and y <= 550 + 74):
+                    pygame.mixer.stop()
                     fade()
                     main_menu()
             for btn in [level1_button, level2_button, level3_button, level4_button, back_button]:
@@ -466,12 +499,19 @@ def show_message(message, x, y, duration=1000):
     pygame.display.flip()
 
 
+def what_level():
+    level_number = (level_data[level_now])[5]
+    background_for_current_level = load_image(BACKGROUND_IMAGE_DICT.get(level_number))
+    return background_for_current_level
+
+def what_level_music():
+    return (level_data[level_now])[5]
+
 def level():
     global level_now
-
     bg = pygame.Surface((WIN_WIDTH, WIN_HEIGHT))
     # будем использовать как фон
-    bg.blit(BACKGROUND_IMAGE, (0, 0))  # Заливаем поверхность сплошным цветом
+    bg.blit(what_level(), (0, 0))  # Заливаем поверхность сплошным цветом
 
     hero = Player(50, 700)  # создаем героя по (x,y) координатам
     left = right = False  # по умолчанию - стоим
@@ -511,12 +551,18 @@ def level():
     total_level_width = len(lvl[0]) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
     total_level_height = len(lvl) * PLATFORM_HEIGHT  # высоту
 
+    pygame.mixer.init()
+    music_level = pygame.mixer.Sound(LEVEL_MUSIC_DICT.get(what_level_music()))
+    music_level.set_volume(0.1)
+    music_level.play()
+
     camera = Camera(camera_configure, total_level_width, total_level_height)
     raning = True
     while raning:
         timer.tick(60)
         for e in pygame.event.get():
             if e.type == pygame.QUIT or e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                pygame.mixer.stop()
                 fade()
                 raning = False
             if e.type == pygame.KEYDOWN and e.key == pygame.K_UP:
