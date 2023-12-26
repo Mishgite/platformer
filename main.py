@@ -116,6 +116,7 @@ conn.close()
 def main_menu():
     pygame.mixer.init()
     music = pygame.mixer.Sound('music\mainmenu.mp3')
+    music.set_volume(0.1)
     music.play()
     start_button = ImageButton(WIDTH / 2 - (252 / 2), 150, 252, 74, "Новая игра", "green_button.png", 'green_button_hover.png')
     continuation_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "Продолжение",
@@ -552,6 +553,7 @@ def level():
 
     pygame.mixer.init()
     music_level = pygame.mixer.Sound(LEVEL_MUSIC_DICT.get(what_level_music()))
+    music_level.set_volume(0.1)
     music_level.play()
 
     camera = Camera(camera_configure, total_level_width, total_level_height)
