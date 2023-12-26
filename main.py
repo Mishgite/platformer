@@ -58,6 +58,8 @@ ANIMATION_JUMP_LEFT = [('Poses/Jumpl.png', 0.1)]
 ANIMATION_JUMP_RIGHT = [('Poses/Jumpr.png', 0.1)]
 ANIMATION_JUMP = [('Poses/r1.png', 0.1)]
 ANIMATION_STAY = [('Poses/r1.png', 0.1)]
+KEY_PICKUP_ANIM = ['KeyPickup/lifting1.png', 'KeyPickup/lifting2.png', 'KeyPickup/lifting3.png',
+                   'KeyPickup/lifting4.png', 'KeyPickup/lifting5.png']
 
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
@@ -321,11 +323,14 @@ class Player(pygame.sprite.Sprite):
         self.startX = x
         self.startY = y
         self.yvel = 0
+        self.HP = 150
+        self.alive = True
         self.onGround = False
         self.image = pygame.Surface((WIDTH1, HEIGHT1))
         self.image.fill(pygame.Color(COLOR))
         self.rect = pygame.Rect(x, y, WIDTH1, HEIGHT1)
         self.image.set_colorkey(pygame.Color(COLOR))
+        self.pickuping_key = False
 
         boltAnim = []
         for anim in ANIMATION_RIGHT:
@@ -338,6 +343,12 @@ class Player(pygame.sprite.Sprite):
             boltAnim.append((anim, ANIMATION_DELAY))
         self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
         self.boltAnimLeft.play()
+
+        boltAnim = list()
+        for anim in KEY_PICKUP_ANIM:
+            boltAnim.append((anim, ANIMATION_DELAY))
+        self.keyPickupAnim = pyganim.PygAnimation(boltAnim)
+        self.keyPickupAnim.play()
 
         self.boltAnimStay = pyganim.PygAnimation(ANIMATION_STAY)
         self.boltAnimStay.play()
@@ -353,38 +364,45 @@ class Player(pygame.sprite.Sprite):
         self.boltAnimJump.play()
 
     def update(self, left, right, up, platforms):
-        if up:
-            if self.onGround:
-                self.yvel = -JUMP_POWER
-            self.image.fill(pygame.Color(COLOR))
-            self.boltAnimJump.blit(self.image, (0, 0))
-        if left:
-            self.xvel = -MOVE_SPEED
-            self.image.fill(pygame.Color(COLOR))
+        if self.HP <= 0:
+            self.alive = False
+        elif self.pickuping_key:
+            self.keyPickupAnim.blit(self.image, (0, 0))
+            if self.keyPickupAnim.currentFrameNum == 4:
+                self.pickuping_key = False
+        else:
             if up:
-                self.boltAnimJumpLeft.blit(self.image, (0, 0))
-            else:
-                self.boltAnimLeft.blit(self.image, (0, 0))
-        if right:
-            self.xvel = MOVE_SPEED
-            self.image.fill(pygame.Color(COLOR))
-            if up:
-                self.boltAnimJumpRight.blit(self.image, (0, 0))
-            else:
-                self.boltAnimRight.blit(self.image, (0, 0))
-        if not (left or right):
-            self.xvel = 0
-            if not up:
+                if self.onGround:
+                    self.yvel = -JUMP_POWER
                 self.image.fill(pygame.Color(COLOR))
-                self.boltAnimStay.blit(self.image, (0, 0))
-        if not self.onGround:
-            self.yvel += GRAVITY
+                self.boltAnimJump.blit(self.image, (0, 0))
+            if left:
+                self.xvel = -MOVE_SPEED
+                self.image.fill(pygame.Color(COLOR))
+                if up:
+                    self.boltAnimJumpLeft.blit(self.image, (0, 0))
+                else:
+                    self.boltAnimLeft.blit(self.image, (0, 0))
+            if right:
+                self.xvel = MOVE_SPEED
+                self.image.fill(pygame.Color(COLOR))
+                if up:
+                    self.boltAnimJumpRight.blit(self.image, (0, 0))
+                else:
+                    self.boltAnimRight.blit(self.image, (0, 0))
+            if not (left or right):
+                self.xvel = 0
+                if not up:
+                    self.image.fill(pygame.Color(COLOR))
+                    self.boltAnimStay.blit(self.image, (0, 0))
+            if not self.onGround:
+                self.yvel += GRAVITY
 
-        self.onGround = False
-        self.rect.y += self.yvel
-        self.collide(0, self.yvel, platforms)
-        self.rect.x += self.xvel
-        self.collide(self.xvel, 0, platforms)
+            self.onGround = False
+            self.rect.y += self.yvel
+            self.collide(0, self.yvel, platforms)
+            self.rect.x += self.xvel
+            self.collide(self.xvel, 0, platforms)
 
     def collide(self, xvel, yvel, platforms):
         for p in platforms:
@@ -420,6 +438,7 @@ class Lava(pygame.sprite.Sprite):
         self.image.fill(pygame.Color(PLATFORM_COLOR))
         self.image = load_image("lava.png")
         self.rect = pygame.Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
+        self.DPS = 30
 
 
 class Door(pygame.sprite.Sprite):
@@ -455,7 +474,7 @@ class Key(pygame.sprite.Sprite):
             self.pickuped = True
             self.image = pygame.Surface((0, 0))
             self.door.key_pickuped = True
-            show_message('Ключ подобран', 10, 10)
+            # show_message('Ключ подобран', 10, 10)
 
 
 class Camera(object):
@@ -504,8 +523,10 @@ def what_level():
     background_for_current_level = load_image(BACKGROUND_IMAGE_DICT.get(level_number))
     return background_for_current_level
 
+
 def what_level_music():
     return (level_data[level_now])[5]
+
 
 def level():
     global level_now
@@ -583,8 +604,9 @@ def level():
                     raning = False
                     level_now += 1
                     level()
-            if pygame.sprite.collide_rect(hero, key):
+            if pygame.sprite.collide_rect(hero, key) and not key.pickuped:
                 key.pickup()
+                hero.pickuping_key = True
             if e.type == pygame.MOUSEBUTTONDOWN:
                 x, y = e.pos
                 if 10 <= x and x <= 10 + 66 and (150 <= y and y <= 50 + 66):
