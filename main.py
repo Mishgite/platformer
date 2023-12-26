@@ -195,6 +195,7 @@ def setting_menu():
                         main_background = load_image(data[0])
                         data_now = data[0]
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (350 <= y and y <= 350 + 74):
+                    pygame.mixer.stop()
                     fade()
                     main_menu()
             for btn in [video_button, back_button]:
