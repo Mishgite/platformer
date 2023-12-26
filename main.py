@@ -82,7 +82,7 @@ WIN_HEIGHT = 760
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 BACKGROUND_IMAGE = load_image('background3.png')
 BACKGROUND_IMAGE_DICT = {'1': 'background3.png', '2': 'background_underground1.png',
-                         '3': '', '4': ''}
+                         '3': 'background3lvl.png', '4': ''}
 
 DOOR_WIDTH = 59
 DOOR_HEIGHT = 63
