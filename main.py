@@ -44,7 +44,7 @@ main_background = load_image(data[image])
 data_now = data[image]
 
 MOVE_SPEED = 5
-WIDTH1 = 49
+WIDTH1 = 42
 HEIGHT1 = 52
 COLOR = "#888888"
 JUMP_POWER = 12
@@ -61,6 +61,7 @@ ANIMATION_JUMP = [('Poses/r1.png', 0.1)]
 ANIMATION_STAY = [('Poses/r1.png', 0.1)]
 KEY_PICKUP_ANIM = ['KeyPickup/lifting1.png', 'KeyPickup/lifting2.png', 'KeyPickup/lifting3.png',
                    'KeyPickup/lifting4.png', 'KeyPickup/lifting5.png']
+ANIMATION_DEAD = ['die/death1.png', 'die/death2.png', 'die/death3.png', 'die/death4.png', 'die/death4.png']
 
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
@@ -113,7 +114,6 @@ for i in result:
     LEVEL_MUSIC_DICT[str(k)] = i[0]
     k += 1
 conn.close()
-
 
 
 def main_menu():
@@ -353,6 +353,13 @@ class Player(pygame.sprite.Sprite):
         self.keyPickupAnim = pyganim.PygAnimation(boltAnim)
         self.keyPickupAnim.play()
 
+        boltAnim = list()
+        for anim in ANIMATION_DEAD:
+            boltAnim.append((anim, ANIMATION_DELAY * 4))
+        self.dyingAnim = pyganim.PygAnimation(boltAnim)
+        self.dyingAnim.play()
+        self.dyingAnim.nextFrame()
+
         self.boltAnimStay = pyganim.PygAnimation(ANIMATION_STAY)
         self.boltAnimStay.play()
         self.boltAnimStay.blit(self.image, (0, 0))  # По умолчанию стоим
@@ -368,10 +375,16 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, left, right, up, platforms, dmg_deal):
         if self.HP <= 0:
-            self.alive = False
+            self.rect.width = WIDTH1 + 30
+            self.image.fill(pygame.Color(COLOR))
+            self.dyingAnim.blit(self.image, (0, 0))
+            print(self.dyingAnim.currentFrameNum)
+            if self.dyingAnim.currentFrameNum == 4:
+                time.sleep(1)
+                self.alive = False
         elif self.pickuping_key:
             self.keyPickupAnim.blit(self.image, (0, 0))
-            if self.keyPickupAnim.currentFrameNum == 4:
+            if self.keyPickupAnim.currentFrameNum == 3:
                 self.pickuping_key = False
         else:
             if up:
@@ -426,6 +439,12 @@ class Player(pygame.sprite.Sprite):
                 if (pygame.time.get_ticks() - self.time_from_dmg) / 1000 >= 1:
                     self.HP -= d.DPS
                     self.time_from_dmg = pygame.time.get_ticks()
+
+    def show_hp(self, screen):
+        font = pygame.font.Font(None, 36)
+        text = font.render(f'{self.HP} / 150', True, pygame.color.Color('red'))
+        screen.blit(text, (5, 5))
+
 # КОНЕЦ ПЕРСОНАЖА
 
 
@@ -550,8 +569,6 @@ def level():
     platforms = []  # то, во что мы будем врезаться или опираться
     damage_dealing = list()
 
-    entities.add(hero)
-
     lvl = load_level(level_data[level_now])
 
     timer = pygame.time.Clock()
@@ -577,6 +594,8 @@ def level():
 
     key = Key(*key_coords, door)
     entities.add(key)
+    entities.add(door)
+    entities.add(hero)
 
     total_level_width = len(lvl[0]) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
     total_level_height = len(lvl) * PLATFORM_HEIGHT  # высоту
@@ -628,9 +647,14 @@ def level():
         screen.blit(bg, (0, 0))
         camera.update(hero)  # камера движется за игроком
         hero.update(left, right, up, platforms, damage_dealing)  # передвижение
-        screen.blit(door.image, camera.apply(door))
+        # screen.blit(door.image, camera.apply(door))
         for e in entities:
             screen.blit(e.image, camera.apply(e))
+        hero.show_hp(screen)
+        if not hero.alive:
+            raning = False
+            fade()
+            level()
         pygame.display.update()
 
 
