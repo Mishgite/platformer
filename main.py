@@ -81,6 +81,8 @@ WIN_WIDTH = 1000
 WIN_HEIGHT = 760
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 BACKGROUND_IMAGE = load_image('background3.png')
+BACKGROUND_IMAGE_DICT = {'1': 'background3.png', '2': 'background_underground1.png',
+                         '3': '', '4': ''}
 
 DOOR_WIDTH = 59
 DOOR_HEIGHT = 63
@@ -464,12 +466,17 @@ def show_message(message, x, y, duration=1000):
     pygame.display.flip()
 
 
+def what_level():
+    level_number = (level_data[level_now])[5]
+    background_for_current_level = load_image(BACKGROUND_IMAGE_DICT.get(level_number))
+    return background_for_current_level
+
+
 def level():
     global level_now
-
     bg = pygame.Surface((WIN_WIDTH, WIN_HEIGHT))
     # будем использовать как фон
-    bg.blit(BACKGROUND_IMAGE, (0, 0))  # Заливаем поверхность сплошным цветом
+    bg.blit(what_level(), (0, 0))  # Заливаем поверхность сплошным цветом
 
     hero = Player(50, 700)  # создаем героя по (x,y) координатам
     left = right = False  # по умолчанию - стоим
