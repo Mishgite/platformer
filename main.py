@@ -608,6 +608,7 @@ def level():
                 left = False
             if pygame.sprite.collide_rect(hero, door) and e.type == pygame.KEYDOWN and e.key == pygame.K_e:
                 if door.collide():
+                    pygame.mixer.stop()
                     fade()
                     raning = False
                     level_now += 1
