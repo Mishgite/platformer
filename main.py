@@ -5,8 +5,6 @@ import pygame
 import sqlite3
 from button import ImageButton
 import time
-import imageio
-
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
