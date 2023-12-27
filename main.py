@@ -146,18 +146,18 @@ def main_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                if (WIDTH/2-(252/2) <= x and x <= WIDTH/2-(252/2) + 252) and (450 <= y and y <= 450 + 74):
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (450 <= y and y <= 450 + 74):
                     fade()
                     running = False
                     pygame.quit()
                     sys.exit()
-                if (WIDTH/2-(252/2) <= x and x <= WIDTH/2-(252/2) + 252) and (250 <= y and y <= 250 + 74):
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (250 <= y and y <= 250 + 74):
                     fade()
                     continuation()
-                if (WIDTH/2-(252/2) <= x and x <= WIDTH/2-(252/2) + 252) and (350 <= y and y <= 350 + 74):
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (350 <= y and y <= 350 + 74):
                     fade()
                     setting_menu()
-                if (WIDTH/2-(252/2) <= x and x <= WIDTH/2-(252/2) + 252) and (150 <= y and y <= 150 + 74):
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (150 <= y and y <= 150 + 74):
                     fade()
                     new_game()
             for btn in [start_button, settings_button, exit_button, continuation_button]:
@@ -657,6 +657,7 @@ def level():
             screen.blit(e.image, camera.apply(e))
         hero.show_hp(screen)
         if not hero.alive:
+            pygame.mixer.stop()
             raning = False
             fade()
             level()
