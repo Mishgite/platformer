@@ -614,13 +614,13 @@ def level():
                 pygame.mixer.stop()
                 fade()
                 raning = False
-            if e.type == pygame.KEYDOWN and e.key == pygame.K_w:
+            if e.type == pygame.KEYDOWN and (e.key == pygame.K_w or e.key == pygame.K_SPACE):
                 up = True
             if e.type == pygame.KEYDOWN and e.key == pygame.K_a:
                 left = True
             if e.type == pygame.KEYDOWN and e.key == pygame.K_d:
                 right = True
-            if e.type == pygame.KEYUP and e.key == pygame.K_w:
+            if e.type == pygame.KEYUP and (e.key == pygame.K_w or e.key == pygame.K_SPACE):
                 up = False
             if e.type == pygame.KEYUP and e.key == pygame.K_d:
                 right = False
