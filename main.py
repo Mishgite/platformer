@@ -614,17 +614,17 @@ def level():
                 pygame.mixer.stop()
                 fade()
                 raning = False
-            if e.type == pygame.KEYDOWN and e.key == pygame.K_UP:
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_w:
                 up = True
-            if e.type == pygame.KEYDOWN and e.key == pygame.K_LEFT:
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_a:
                 left = True
-            if e.type == pygame.KEYDOWN and e.key == pygame.K_RIGHT:
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_d:
                 right = True
-            if e.type == pygame.KEYUP and e.key == pygame.K_UP:
+            if e.type == pygame.KEYUP and e.key == pygame.K_w:
                 up = False
-            if e.type == pygame.KEYUP and e.key == pygame.K_RIGHT:
+            if e.type == pygame.KEYUP and e.key == pygame.K_d:
                 right = False
-            if e.type == pygame.KEYUP and e.key == pygame.K_LEFT:
+            if e.type == pygame.KEYUP and e.key == pygame.K_a:
                 left = False
             if pygame.sprite.collide_rect(hero, door) and e.type == pygame.KEYDOWN and e.key == pygame.K_e:
                 if door.collide():
