@@ -77,7 +77,8 @@ PLATFORMS_TEXTURES = {chr(92): 'platform_floor_cornerRW.png', '/': 'platform_flo
                       '#': 'land.jpg', '@': 'land_grass.jpg',
                       '&': 'land_island.png', '$': 'land_islandR.png',
                       ':': 'land_islandL.png', ';': 'land_islandN.png',
-                      "'": 'land_islandH.png', '"': 'land_islandHh.png'
+                      "'": 'land_islandH.png', '"': 'land_islandHh.png',
+                      ',': 'land_islandRr.png'
                       }
 
 
