@@ -62,6 +62,9 @@ ANIMATION_JUMP = [('Poses/r1.png', 0.1)]
 ANIMATION_STAY = [('Poses/r1.png', 0.1)]
 KEY_PICKUP_ANIM = ['KeyPickup/lifting1.png', 'KeyPickup/lifting2.png', 'KeyPickup/lifting3.png',
                    'KeyPickup/lifting4.png', 'KeyPickup/lifting5.png']
+ATTACK_LEFT = [f'AttacksL/attacks{i}.png' for i in range(1, 19)]
+ATTACK_RIGHT = [f'AttacksR/attacks{i}.png' for i in range(1, 19)]
+ATTACK_PAUSES = [0, 5, 8, 11, 17]
 ANIMATION_DEAD = ['die/death1.png', 'die/death2.png', 'die/death3.png', 'die/death4.png', 'die/death4.png']
 
 PLATFORM_WIDTH = 32
@@ -336,6 +339,7 @@ class Player(pygame.sprite.Sprite):
         self.startY = y
         self.yvel = 0
         self.HP = 150
+        self.rotation = 1
         self.alive = True
         self.onGround = False
         self.image = pygame.Surface((WIDTH1, HEIGHT1))
@@ -343,6 +347,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, WIDTH1, HEIGHT1)
         self.image.set_colorkey(pygame.Color(COLOR))
         self.pickuping_key = False
+        self.attacking = False
+        self.attack_time = 0
         self.time_from_dmg = 0
 
         boltAnim = []
@@ -362,6 +368,14 @@ class Player(pygame.sprite.Sprite):
             boltAnim.append((anim, ANIMATION_DELAY))
         self.keyPickupAnim = pyganim.PygAnimation(boltAnim)
         self.keyPickupAnim.play()
+
+        boltAnim = [(anim, ANIMATION_DELAY) for anim in ATTACK_LEFT]
+        self.attackLeftAnim = pyganim.PygAnimation(boltAnim)
+        self.attackLeftAnim.play()
+
+        boltAnim = [(anim, ANIMATION_DELAY) for anim in ATTACK_RIGHT]
+        self.attackRightAnim = pyganim.PygAnimation(boltAnim)
+        self.attackRightAnim.play()
 
         boltAnim = list()
         for anim in ANIMATION_DEAD:
@@ -383,7 +397,7 @@ class Player(pygame.sprite.Sprite):
         self.boltAnimJump = pyganim.PygAnimation(ANIMATION_JUMP)
         self.boltAnimJump.play()
 
-    def update(self, left, right, up, platforms, dmg_deal):
+    def update(self, left, right, up, platforms, dmg_deal, enemies: pygame.sprite.Group):
         if self.HP <= 0:
             self.rect.width = WIDTH1 + 30
             self.image.fill(pygame.Color(COLOR))
@@ -396,6 +410,28 @@ class Player(pygame.sprite.Sprite):
             self.keyPickupAnim.blit(self.image, (0, 0))
             if self.keyPickupAnim.currentFrameNum == 3:
                 self.pickuping_key = False
+        elif self.attacking:
+            self.image.fill(pygame.Color(COLOR))
+            if self.rotation:
+                self.attackRightAnim.blit(self.image, (0, 0))
+                if self.attackRightAnim.currentFrameNum in ATTACK_PAUSES:
+                    if pygame.mouse.get_pressed(3)[0]:
+                        for sprite in enemies:
+                            if sprite.hit_collide(self.rect):
+                                sprite.death = True
+                    else:
+                        self.attackRightAnim.currentFrameNum = 0
+                        self.attacking = False
+            else:
+                self.attackLeftAnim.blit(self.image, (0, 0))
+                if self.attackLeftAnim.currentFrameNum in ATTACK_PAUSES:
+                    if pygame.mouse.get_pressed(3)[0]:
+                        for sprite in enemies:
+                            if sprite.hit_collide(self.rect):
+                                sprite.death = True
+                    else:
+                        self.attackLeftAnim.currentFrameNum = 0
+                        self.attacking = False
         else:
             if up:
                 if self.onGround:
@@ -404,6 +440,7 @@ class Player(pygame.sprite.Sprite):
                 self.boltAnimJump.blit(self.image, (0, 0))
             if left:
                 self.xvel = -MOVE_SPEED
+                self.rotation = 0
                 self.image.fill(pygame.Color(COLOR))
                 if up:
                     self.boltAnimJumpLeft.blit(self.image, (0, 0))
@@ -412,6 +449,7 @@ class Player(pygame.sprite.Sprite):
             if right:
                 self.xvel = MOVE_SPEED
                 self.image.fill(pygame.Color(COLOR))
+                self.rotation = 1
                 if up:
                     self.boltAnimJumpRight.blit(self.image, (0, 0))
                 else:
@@ -659,17 +697,20 @@ def level():
             if pygame.sprite.collide_rect(hero, key) and not key.pickuped:
                 key.pickup()
                 hero.pickuping_key = True
-            if e.type == pygame.MOUSEBUTTONDOWN:
-                x, y = e.pos
-                if 10 <= x and x <= 10 + 66 and (150 <= y and y <= 50 + 66):
-                    raning = False
-                    fade()
-                    main_menu()
+            # if e.type == pygame.MOUSEBUTTONDOWN:
+            #     x, y = e.pos
+            #     if 10 <= x and x <= 10 + 66 and (150 <= y and y <= 50 + 66):
+            #         raning = False
+            #         fade()
+            #         main_menu()
+            if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1 or \
+                    e.type == pygame.KEYDOWN and e.key == pygame.K_LCTRL:
+                hero.attacking = True
 
         pygame.display.flip()
         screen.blit(bg, (0, 0))
         camera.update(hero)  # камера движется за игроком
-        hero.update(left, right, up, platforms, damage_dealing)  # передвижение
+        hero.update(left, right, up, platforms, damage_dealing, enemies)  # передвижение
         enemies.update(hero, platforms)
 
         # screen.blit(door.image, camera.apply(door))
