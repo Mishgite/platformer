@@ -6,6 +6,7 @@ import sqlite3
 from button import ImageButton
 import time
 import pygame.mixer
+from enemy import Enemy
 
 
 def load_image(name, colorkey=None):
@@ -444,10 +445,17 @@ class Player(pygame.sprite.Sprite):
                     self.rect.top = p.rect.bottom
                     self.yvel = 0
         for d in dmg_deal:
-            if pygame.sprite.collide_rect(self, d):
-                if (pygame.time.get_ticks() - self.time_from_dmg) / 1000 >= 1:
+            if (pygame.time.get_ticks() - self.time_from_dmg) / 1000 >= 1:
+                if isinstance(d, Enemy):
+                    if self.rect.colliderect(d.rect):
+                        if d.attack_l.currentFrameNum == 11 or d.attack_r.currentFrameNum == 11:
+                            self.HP -= d.DPS
+                            self.time_from_dmg = pygame.time.get_ticks()
+                elif pygame.sprite.collide_rect(self, d):
                     self.HP -= d.DPS
                     self.time_from_dmg = pygame.time.get_ticks()
+            if self.HP < 0:
+                self.HP = 0
 
     def show_hp(self, screen):
         font = pygame.font.Font(None, 36)
@@ -575,6 +583,7 @@ def level():
     up = False
 
     entities = pygame.sprite.Group()  # Все объекты
+    enemies = pygame.sprite.Group()
     platforms = []  # то, во что мы будем врезаться или опираться
     damage_dealing = list()
 
@@ -596,6 +605,11 @@ def level():
                 door = Door(x, y)
             if col == '*':
                 key_coords = x, y
+            if col == 'E':
+                enemy = Enemy(x, y)
+                damage_dealing.append(enemy)
+                entities.add(enemy)
+                enemies.add(enemy)
 
             x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
         y += PLATFORM_HEIGHT  # то же самое и с высотой
@@ -656,6 +670,8 @@ def level():
         screen.blit(bg, (0, 0))
         camera.update(hero)  # камера движется за игроком
         hero.update(left, right, up, platforms, damage_dealing)  # передвижение
+        enemies.update(hero, platforms)
+
         # screen.blit(door.image, camera.apply(door))
         for e in entities:
             screen.blit(e.image, camera.apply(e))
