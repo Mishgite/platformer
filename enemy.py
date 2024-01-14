@@ -33,8 +33,6 @@ class Enemy(pygame.sprite.Sprite):
         self.image.set_colorkey(COLOR)
         self.rect = pygame.Rect(x, y, ENEMY_WIDTH, ENEMY_HEIGHT)
         self.track_rect = pygame.Rect(x - VISION, y, VISION * 2, ENEMY_HEIGHT)
-        self.hit_move_rect_l = pygame.Rect(self.rect.left, y, HIT_DISTANCE, ENEMY_HEIGHT)
-        self.hit_move_rect_r = pygame.Rect(self.rect.right, y, HIT_DISTANCE, ENEMY_HEIGHT)
         self.idle = True
         self.walk = False
         self.attacking = False
@@ -67,13 +65,15 @@ class Enemy(pygame.sprite.Sprite):
         self.take_hit_l = pyganim.PygAnimation(anim)
         self.take_hit_l.play()
 
-        anim = [(anim, ANIMATION_DELAY) for anim in DEATH_ANIM_R]
+        anim = [(anim, ANIMATION_DELAY * 4) for anim in DEATH_ANIM_R]
         self.death_r = pyganim.PygAnimation(anim)
         self.death_r.play()
+        self.death_r.currentFrameNum = 0
 
         anim = [(anim, ANIMATION_DELAY * 4) for anim in DEATH_ANIM_L]
         self.death_l = pyganim.PygAnimation(anim)
         self.death_l.play()
+        self.death_l.currentFrameNum = 0
 
         anim = [(anim, ANIMATION_DELAY) for anim in ATTACK_ANIM_R]
         self.attack_r = pyganim.PygAnimation(anim)
@@ -83,16 +83,29 @@ class Enemy(pygame.sprite.Sprite):
         self.attack_l = pyganim.PygAnimation(anim)
         self.attack_l.play()
 
+    def hit_collide(self, rect):
+        if self.rotation == 1:
+            return rect.colliderect((self.rect.x, self.rect.y, 36, ENEMY_HEIGHT))
+        else:
+            return rect.colliderect((self.rect.x + (ENEMY_WIDTH - 36), self.rect.y, 36, ENEMY_HEIGHT))
+
     def move(self, xv):
         self.track_rect.x += xv
-        self.hit_move_rect_l.x += xv
-        self.hit_move_rect_l.x += xv
         self.rect.x += xv
 
     def update(self, player, platforms):
         if not self.dead:
             self.image.fill(COLOR)
-            if self.track_rect.colliderect(player.rect) and self.idle:
+            if self.death:
+                if self.rotation == 1:
+                    self.death_r.blit(self.image, (0, 0))
+                    if self.death_r.currentFrameNum == 3:
+                        self.dead = True
+                else:
+                    self.death_l.blit(self.image, (0, 0))
+                    if self.death_l.currentFrameNum == 3:
+                        self.dead = True
+            elif self.track_rect.colliderect(player.rect) and self.idle:
                 self.idle = False
                 self.walk = True
             elif self.walk:
