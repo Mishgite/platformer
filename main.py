@@ -8,7 +8,6 @@ import time
 import pygame.mixer
 from enemy import Enemy
 
-
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
@@ -34,7 +33,7 @@ level_now = result[1][1]
 data = ['background.jpg', 'background1.jpg', 'background2.jpg', '']
 level_data = ['level1.txt', 'level2.txt', 'level3.txt', 'level4.txt']
 pygame.init()
-WIDTH, HEIGHT = 1000, 760
+WIDTH, HEIGHT = 1280, 720
 MAX_FPS = 80
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -86,7 +85,7 @@ PLATFORMS_TEXTURES = {chr(92): 'platform_floor_cornerRW.png', '/': 'platform_flo
                       '~': 'land_islandM.png', 'R': 'lava_landR.png',
                       'r': 'lava_landRh.png', 'L': 'lava_landL.png',
                       'l': 'lava_landLh.png', 'W': 'lava_land.png',
-                      'H': 'lava_landn.png'
+                      'H': 'lava_landn.png', 'x': 'level4_block.png'
                       }
 
 
@@ -95,8 +94,8 @@ LAVA_HEIGHT = 32
 LAVA_COLOR = "#FF6262"
 ICON_DIR = os.path.dirname(__file__)
 
-WIN_WIDTH = 1000
-WIN_HEIGHT = 760
+WIN_WIDTH = 1280
+WIN_HEIGHT = 720
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 
 BACKGROUND_IMAGE_DICT = dict()
