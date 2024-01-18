@@ -293,15 +293,9 @@ def fade():
 
 
 def continuation():
-    level1_button = ImageButton(WIDTH / 2 - (252 / 2), 150, 252, 74, "первый уровень", "green_button.png",
+    level1_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "первый уровень", "green_button.png",
                                'green_button_hover.png')
-    level2_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "второй уровень",
-                                      "green_button.png", 'green_button_hover.png')
-    level3_button = ImageButton(WIDTH / 2 - (252 / 2), 350, 252, 74, "третий уровень", "green_button.png",
-                                  'green_button_hover.png')
-    level4_button = ImageButton(WIDTH / 2 - (252 / 2), 450, 252, 74, "четвёртый уровень", "green_button.png",
-                              'green_button_hover.png')
-    back_button = ImageButton(WIDTH / 2 - (252 / 2), 550, 252, 74, "Выйти", "green_button.png",
+    back_button = ImageButton(WIDTH / 2 - (252 / 2), 350, 252, 74, "Выйти", "green_button.png",
                               'green_button_hover.png')
     running = True
     while running:
@@ -314,17 +308,17 @@ def continuation():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (150 <= y and y <= 150 + 74):
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (250 <= y and y <= 250 + 74):
                     pygame.mixer.stop()
                     fade()
                     level()
-                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (550 <= y and y <= 550 + 74):
+                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (350 <= y and y <= 350 + 74):
                     pygame.mixer.stop()
                     fade()
                     main_menu()
-            for btn in [level1_button, level2_button, level3_button, level4_button, back_button]:
+            for btn in [level1_button, back_button]:
                 btn.handle_event(event)
-        for btn in [level1_button, level2_button, level3_button, level4_button, back_button]:
+        for btn in [level1_button, back_button]:
             btn.check_hover(pygame.mouse.get_pos())
             btn.draw(screen)
         pygame.display.flip()
