@@ -8,6 +8,7 @@ import time
 import pygame.mixer
 from enemy import Enemy
 
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
@@ -46,6 +47,8 @@ data_now = data[image]
 MOVE_SPEED = 5
 WIDTH1 = 42
 HEIGHT1 = 52
+WIDTH2 = 42
+HEIGHT2 = 52
 COLOR = "#888888"
 JUMP_POWER = 12
 GRAVITY = 0.4
@@ -63,6 +66,8 @@ KEY_PICKUP_ANIM = ['KeyPickup/lifting1.png', 'KeyPickup/lifting2.png', 'KeyPicku
                    'KeyPickup/lifting4.png', 'KeyPickup/lifting5.png']
 ATTACK_LEFT = [f'AttacksL/attacks{i}.png' for i in range(1, 19)]
 ATTACK_RIGHT = [f'AttacksR/attacks{i}.png' for i in range(1, 19)]
+ATTACK_LEFT_WAVE = [f'AttacksL_wave/attacks{i}_wave.png' for i in range(1, 19)]
+ATTACK_RIGHT_WAVE = [f'AttacksR_wave/attacks{i}_wave.png' for i in range(1, 19)]
 ATTACK_PAUSES = [0, 5, 8, 11, 17]
 ANIMATION_DEAD = ['die/death1.png', 'die/death2.png', 'die/death3.png', 'die/death4.png', 'die/death4.png']
 
@@ -390,7 +395,7 @@ class Player(pygame.sprite.Sprite):
         self.boltAnimJump = pyganim.PygAnimation(ANIMATION_JUMP)
         self.boltAnimJump.play()
 
-    def update(self, left, right, up, platforms, dmg_deal, enemies: pygame.sprite.Group):
+    def update(self, left, right, up, platforms, dmg_deal, enemies: pygame.sprite.Group, attack_wave):
         if self.HP <= 0:
             self.rect.width = WIDTH1 + 30
             self.image.fill(pygame.Color(COLOR))
@@ -410,7 +415,7 @@ class Player(pygame.sprite.Sprite):
                 if self.attackRightAnim.currentFrameNum in ATTACK_PAUSES:
                     if pygame.mouse.get_pressed(3)[0]:
                         for sprite in enemies:
-                            if sprite.hit_collide(self.rect):
+                            if sprite.hit_collide(attack_wave.rect):
                                 sprite.death = True
                     else:
                         self.attackRightAnim.currentFrameNum = 0
@@ -494,6 +499,49 @@ class Player(pygame.sprite.Sprite):
         screen.blit(text, (5, 5))
 
 # КОНЕЦ ПЕРСОНАЖА
+
+
+class AttackWave(pygame.sprite.Sprite):
+    def __init__(self, player):
+        pygame.sprite.Sprite.__init__(self)
+        self.player = player
+        self.rotation = player.rotation
+        self.image = pygame.Surface((60, 52))
+        self.image.fill(pygame.Color(COLOR))
+        self.image.set_colorkey(pygame.Color(COLOR))
+
+        anim = [(anim, ANIMATION_DELAY) for anim in ATTACK_RIGHT_WAVE]
+        self.attackR_anim = pyganim.PygAnimation(anim)
+        self.attackR_anim.play()
+
+        anim = [(anim, ANIMATION_DELAY) for anim in ATTACK_LEFT_WAVE]
+        self.attackL_anim = pyganim.PygAnimation(anim)
+        self.attackL_anim.play()
+
+        if self.rotation:
+            self.rect = pygame.Rect(player.rect.right - 10, player.rect.top, 60, 52)
+            self.attackR_anim.blit(self.image, (0, 0))
+        else:
+            self.rect = pygame.Rect(player.rect.left - 50, player.rect.top, 60, 52)
+            self.attackL_anim.blit(self.image, (0, 0))
+
+    def update(self):
+        self.rotation = self.player.rotation
+        self.image.fill(pygame.Color(COLOR))
+        if self.player.attacking:
+            if self.rotation:
+                self.rect.x = self.player.rect.right - 10
+                if self.player.attackRightAnim.currentFrameNum == 0:
+                    self.attackR_anim.currentFrameNum = 0
+                self.attackR_anim.blit(self.image, (0, 0))
+            else:
+                self.rect.x = self.player.rect.left - 50
+                if self.player.attackLeftAnim.currentFrameNum == 0:
+                    self.attackL_anim.currentFrameNum = 0
+                self.attackL_anim.blit(self.image, (0, 0))
+        else:
+            self.rect.x = self.player.rect.x
+            self.rect.y = self.player.rect.y
 
 
 class Platform(pygame.sprite.Sprite):
@@ -610,6 +658,7 @@ def level():
     bg.blit(what_level(), (0, 0))  # Заливаем поверхность сплошным цветом
 
     hero = Player(50, 700)  # создаем героя по (x,y) координатам
+    wave = AttackWave(hero)
     left = right = False  # по умолчанию - стоим
     up = False
 
@@ -650,6 +699,7 @@ def level():
     entities.add(key)
     entities.add(door)
     entities.add(hero)
+    entities.add(wave)
 
     total_level_width = len(lvl[0]) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
     total_level_height = len(lvl) * PLATFORM_HEIGHT  # высоту
@@ -703,7 +753,8 @@ def level():
         pygame.display.flip()
         screen.blit(bg, (0, 0))
         camera.update(hero)  # камера движется за игроком
-        hero.update(left, right, up, platforms, damage_dealing, enemies)  # передвижение
+        hero.update(left, right, up, platforms, damage_dealing, enemies, wave)  # передвижение
+        wave.update()
         enemies.update(hero, platforms)
 
         # screen.blit(door.image, camera.apply(door))
