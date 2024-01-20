@@ -30,10 +30,10 @@ cur = con.cursor()
 result = cur.execute("""SELECT * FROM play""").fetchall()
 image = result[0][1]
 level_now = result[1][1]
-data = ['background.jpg', 'background1.jpg', 'background2.jpg', 'background4level.png']
+data = ['background.jpg', 'background1.jpg', 'background2.jpg', 'background3.png']
 level_data = ['level1.txt', 'level2.txt', 'level3.txt', 'level4.txt']
 pygame.init()
-WIDTH, HEIGHT = 1280, 720
+WIDTH, HEIGHT = 1000, 760
 MAX_FPS = 80
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -44,7 +44,7 @@ main_background = load_image(data[image])
 data_now = data[image]
 
 MOVE_SPEED = 5
-WIDTH1 = 42
+WIDTH1 = 49
 HEIGHT1 = 52
 COLOR = "#888888"
 JUMP_POWER = 12
@@ -203,7 +203,7 @@ def setting_menu():
                     elif data_now == 'background2.jpg':
                         main_background = load_image(data[3])
                         data_now = data[3]
-                    elif data_now == 'background3.jpg':
+                    elif data_now == 'background3.png':
                         main_background = load_image(data[0])
                         data_now = data[0]
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (350 <= y and y <= 350 + 74):
