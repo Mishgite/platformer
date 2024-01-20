@@ -20,10 +20,10 @@ BOSS_HEIGHT = 72
 HAND_WIDTH = 47
 HAND_HEIGHT = 18
 VISION = 150
+projectiles = pygame.sprite.Group()
 
 
-def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+def load_image(fullname, colorkey=None):
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
@@ -51,6 +51,7 @@ class Boss(pygame.sprite.Sprite):
         self.image.set_colorkey(pygame.Color(COLOR))
         self.rect = pygame.Rect((x, y, BOSS_WIDTH, BOSS_HEIGHT))
         self.vision = pygame.Rect((x - VISION, y - VISION, VISION * 2, VISION * 2))
+        self.projectile = pygame.sprite.Sprite()
 
         anim = [(frame, ANIMATION_DELAY) for frame in ATTACK]
         self.attack = pyganim.PygAnimation(anim)
@@ -81,7 +82,9 @@ class Boss(pygame.sprite.Sprite):
         self.laser_attack = pyganim.PygAnimation(anim)
         self.laser_attack.play()
 
-    def update(self, player, platforms):
+    def update(self, screen, player, platforms):
+        projectiles.update(player, platforms)
+        projectiles.draw(screen)
         if not self.dead:
             self.image.fill(pygame.Color(COLOR))
             if self.sleeping:
@@ -91,27 +94,24 @@ class Boss(pygame.sprite.Sprite):
                     self.sleeping = False
                     self.time_from_attack = pygame.time.get_ticks()
             elif self.moving:
-                if pygame.time.get_ticks() - self.time_from_attack >= 10000:
-                    att = random.randint(0, 1)
+                if pygame.time.get_ticks() - self.time_from_attack >= 3000:
                     self.moving = False
-                    if att == 0:
-                        self.hand_throw = True
-                    else:
-                        self.laser_att = True
+                    self.hand_throw = True
                 else:
-                    if not self.able_to_move(player, platforms):
-                        if self.rect.x < player.rect.x:
-                            self.xv = self.speed
-                        else:
-                            self.xv = -self.speed
-                        self.rect.x += self.xv
+                    if self.rect.x < player.rect.x:
+                        self.xv = self.speed
                     else:
-                        self.xv = 0
-                    self.run.blit(self.image, (0, 0))
+                        self.xv = -self.speed
+                    self.rect.x += self.xv
+
+                self.run.blit(self.image, (0, 0))
             elif self.hand_throw:
                 self.attack.blit(self.image, (0, 0))
-                if self.attack.currentFrameNum == 8:
+                print(self.attack.currentFrameNum)
+                if self.attack.currentFrameNum == 7:
                     projectile = Hand(self.rect.right, self.rect.top + 10, player.rect.x, player.rect.y)
+                    projectiles.add(projectile)
+                    self.hand_throw = False
                     self.hand_attr = True
             elif self.hand_attr:
                 self.attract_hand.blit(self.image, (0, 0))
@@ -125,6 +125,9 @@ class Boss(pygame.sprite.Sprite):
             return not any([p.rect.collidepoint(self.rect.left, self.rect.top) for p in platforms])
         else:
             return not any([p.rect.collidepoint(self.rect.right, self.rect.top) for p in platforms])
+
+    def hit_collide(self, rect):
+        return self.rect.colliderect(rect)
 
 
 class Hand(pygame.sprite.Sprite):
@@ -146,10 +149,16 @@ class Hand(pygame.sprite.Sprite):
             self.xv = -self.speed
         self.yv = 0
 
-    def update(self, player):
+    def update(self, *args):
+        player, platforms = args[0], args[1]
         if not self.falling:
             if self.dest_x - 7 < self.rect.x < self.dest_x + 7:
                 self.falling = True
                 self.yv = self.speed
                 self.xv = 0
+        else:
+            if any([p.rect.collidepoint(self.rect.bottom) for p in platforms]):
+                self.yv = 0
+
+        self.rect.move(self.xv, self.yv)
 
