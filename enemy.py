@@ -38,7 +38,7 @@ class Enemy(pygame.sprite.Sprite):
         self.attacking = False
         self.death = False
         self.dead = False
-        self.DPS = 60
+        self.DPS = 30
 
         anim = [(anim, ANIMATION_DELAY) for anim in IDLE_ANIM_R]
         self.idle_anim_r = pyganim.PygAnimation(anim)
