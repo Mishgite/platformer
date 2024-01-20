@@ -93,7 +93,7 @@ class Enemy(pygame.sprite.Sprite):
         self.track_rect.x += xv
         self.rect.x += xv
 
-    def update(self, player, platforms):
+    def update(self, screen, player, platforms):
         if not self.dead:
             self.image.fill(COLOR)
             if self.death:
