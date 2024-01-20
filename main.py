@@ -113,7 +113,6 @@ for i in result:
     BACKGROUND_IMAGE_DICT[str(k)] = i[0]
     k += 1
 conn.close()
-wasd = True
 
 
 DOOR_WIDTH = 59
@@ -182,11 +181,9 @@ def main_menu():
 
 
 def setting_menu():
-    global main_background, data_now, wasd
+    global main_background, data_now
     video_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "Видео", "green_button.png",
                                'green_button_hover.png')
-    management_button = ImageButton(WIDTH / 2 - (252 / 2), 150, 252, 74, "Смена управления", "green_button.png",
-                                    'green_button_hover.png')
     back_button = ImageButton(WIDTH / 2 - (252 / 2), 350, 252, 74, "Выйти", "green_button.png",
                               'green_button_hover.png')
     running = True
@@ -200,8 +197,6 @@ def setting_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (150 <= y and y <= 250 + 74):
-                    wasd = not wasd
                 if (WIDTH / 2 - (252 / 2) <= x and x <= WIDTH / 2 - (252 / 2) + 252) and (250 <= y and y <= 250 + 74):
                     if data_now == 'background.jpg':
                         # cur.execute("""UPDATE play SET values = 1 WHERE id = 1""")
@@ -723,32 +718,18 @@ def level():
                 pygame.mixer.stop()
                 fade()
                 raning = False
-            if not wasd:
-                if e.type == pygame.KEYDOWN and e.key == pygame.K_UP:
-                    up = True
-                if e.type == pygame.KEYDOWN and e.key == pygame.K_LEFT:
-                    left = True
-                if e.type == pygame.KEYDOWN and e.key == pygame.K_RIGHT:
-                    right = True
-                if e.type == pygame.KEYUP and e.key == pygame.K_UP:
-                    up = False
-                if e.type == pygame.KEYUP and e.key == pygame.K_RIGHT:
-                    right = False
-                if e.type == pygame.KEYUP and e.key == pygame.K_LEFT:
-                    left = False
-            else:
-                if e.type == pygame.KEYDOWN and (e.key == pygame.K_w or e.key == pygame.K_SPACE):
-                    up = True
-                if e.type == pygame.KEYDOWN and e.key == pygame.K_a:
-                    left = True
-                if e.type == pygame.KEYDOWN and e.key == pygame.K_d:
-                    right = True
-                if e.type == pygame.KEYUP and (e.key == pygame.K_w or e.key == pygame.K_SPACE):
-                    up = False
-                if e.type == pygame.KEYUP and e.key == pygame.K_d:
-                    right = False
-                if e.type == pygame.KEYUP and e.key == pygame.K_a:
-                    left = False
+            if e.type == pygame.KEYDOWN and (e.key == pygame.K_w or e.key == pygame.K_SPACE):
+                up = True
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_a:
+                left = True
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_d:
+                right = True
+            if e.type == pygame.KEYUP and (e.key == pygame.K_w or e.key == pygame.K_SPACE):
+                up = False
+            if e.type == pygame.KEYUP and e.key == pygame.K_d:
+                right = False
+            if e.type == pygame.KEYUP and e.key == pygame.K_a:
+                left = False
             if pygame.sprite.collide_rect(hero, door) and e.type == pygame.KEYDOWN and e.key == pygame.K_e:
                 if door.collide():
                     pygame.mixer.stop()
