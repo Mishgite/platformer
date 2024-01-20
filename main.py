@@ -34,7 +34,7 @@ level_now = result[1][1]
 data = ['background.jpg', 'background1.jpg', 'background2.jpg', 'background3.png']
 level_data = ['level1.txt', 'level2.txt', 'level3.txt', 'level4.txt']
 pygame.init()
-WIDTH, HEIGHT = 1000, 760
+WIDTH, HEIGHT = 1280, 720
 MAX_FPS = 80
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -45,7 +45,7 @@ main_background = load_image(data[image])
 data_now = data[image]
 
 MOVE_SPEED = 5
-WIDTH1 = 49
+WIDTH1 = 42
 HEIGHT1 = 52
 WIDTH2 = 42
 HEIGHT2 = 52
