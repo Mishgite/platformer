@@ -303,7 +303,7 @@ def fade():
 
 
 def continuation():
-    level1_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "первый уровень", "green_button.png",
+    level1_button = ImageButton(WIDTH / 2 - (252 / 2), 250, 252, 74, "Продолжение", "green_button.png",
                                'green_button_hover.png')
     back_button = ImageButton(WIDTH / 2 - (252 / 2), 350, 252, 74, "Выйти", "green_button.png",
                               'green_button_hover.png')
