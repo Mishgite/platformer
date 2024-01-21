@@ -7,6 +7,7 @@ from button import ImageButton
 import time
 import pygame.mixer
 from enemy import Enemy
+from boss import Boss
 
 
 def load_image(name, colorkey=None):
@@ -342,6 +343,7 @@ class Player(pygame.sprite.Sprite):
         self.startY = y
         self.yvel = 0
         self.HP = 150
+        self.DPS = 10
         self.rotation = 1
         self.alive = True
         self.onGround = False
@@ -421,7 +423,7 @@ class Player(pygame.sprite.Sprite):
                     if pygame.mouse.get_pressed(3)[0]:
                         for sprite in enemies:
                             if sprite.hit_collide(attack_wave.rect):
-                                sprite.death = True
+                                sprite.HP -= self.DPS
                     else:
                         self.attackRightAnim.currentFrameNum = 0
                         self.attacking = False
@@ -489,7 +491,7 @@ class Player(pygame.sprite.Sprite):
             if (pygame.time.get_ticks() - self.time_from_dmg) / 1000 >= 1:
                 if isinstance(d, Enemy):
                     if self.rect.colliderect(d.rect):
-                        if d.attack_l.currentFrameNum == 11 or d.attack_r.currentFrameNum == 11:
+                        if d.attack_l.currentFrameNum == 10 or d.attack_r.currentFrameNum == 10:
                             self.HP -= d.DPS
                             self.time_from_dmg = pygame.time.get_ticks()
                 elif pygame.sprite.collide_rect(self, d):
@@ -524,10 +526,10 @@ class AttackWave(pygame.sprite.Sprite):
         self.attackL_anim.play()
 
         if self.rotation:
-            self.rect = pygame.Rect(player.rect.right - 10, player.rect.top, 60, 52)
+            self.rect = pygame.Rect(player.rect.right - 10, player.rect.top, 67, 52)
             self.attackR_anim.blit(self.image, (0, 0))
         else:
-            self.rect = pygame.Rect(player.rect.left - 50, player.rect.top, 60, 52)
+            self.rect = pygame.Rect(player.rect.left - 50, player.rect.top, 67, 52)
             self.attackL_anim.blit(self.image, (0, 0))
 
     def update(self):
@@ -695,6 +697,11 @@ def level():
                 damage_dealing.append(enemy)
                 entities.add(enemy)
                 enemies.add(enemy)
+            if col == 'B':
+                boss = Boss(x, y)
+                damage_dealing.append(boss)
+                entities.add(boss)
+                enemies.add(boss)
 
             x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
         y += PLATFORM_HEIGHT  # то же самое и с высотой
@@ -774,7 +781,7 @@ def level():
         camera.update(hero)  # камера движется за игроком
         hero.update(left, right, up, platforms, damage_dealing, enemies, wave)  # передвижение
         wave.update()
-        enemies.update(hero, platforms)
+        enemies.update(screen, hero, platforms, enemies, entities, damage_dealing)
 
         # screen.blit(door.image, camera.apply(door))
         for e in entities:

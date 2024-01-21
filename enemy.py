@@ -8,7 +8,7 @@ VISION = 200
 HIT_DISTANCE = 1
 COLOR = '#708090'
 MOVE_SPEED = 3
-ANIMATION_DELAY = 0.1
+ANIMATION_DELAY = 0.2
 
 IDLE_ANIM_L = [f'EnemyAnimL/idle/idle{i + 1}.png' for i in range(4)]
 IDLE_ANIM_R = [f'EnemyAnimR/idle/idle{i + 1}.png' for i in range(4)]
@@ -36,9 +36,9 @@ class Enemy(pygame.sprite.Sprite):
         self.idle = True
         self.walk = False
         self.attacking = False
-        self.death = False
         self.dead = False
-        self.DPS = 30
+        self.DPS = 60
+        self.HP = 10
 
         anim = [(anim, ANIMATION_DELAY) for anim in IDLE_ANIM_R]
         self.idle_anim_r = pyganim.PygAnimation(anim)
@@ -93,10 +93,13 @@ class Enemy(pygame.sprite.Sprite):
         self.track_rect.x += xv
         self.rect.x += xv
 
-    def update(self, screen, player, platforms):
+    def update(self, *args):
+        player, platforms = args[1], args[2]
         if not self.dead:
             self.image.fill(COLOR)
-            if self.death:
+            if self.HP <= 0:
+                self.attack_l.currentFrameNum = 0
+                self.attack_r.currentFrameNum = 0
                 if self.rotation == 1:
                     self.death_r.blit(self.image, (0, 0))
                     if self.death_r.currentFrameNum == 3:
