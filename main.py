@@ -391,7 +391,7 @@ class Player(pygame.sprite.Sprite):
 
         self.boltAnimStay = pyganim.PygAnimation(ANIMATION_STAY)
         self.boltAnimStay.play()
-        self.boltAnimStay.blit(self.image, (0, 0))  # По умолчанию стоим
+        self.boltAnimStay.blit(self.image, (0, 0))
 
         self.boltAnimJumpLeft = pyganim.PygAnimation(ANIMATION_JUMP_LEFT)
         self.boltAnimJumpLeft.play()
@@ -697,11 +697,7 @@ def level():
                 damage_dealing.append(enemy)
                 entities.add(enemy)
                 enemies.add(enemy)
-            if col == 'B':
-                boss = Boss(x, y)
-                damage_dealing.append(boss)
-                entities.add(boss)
-                enemies.add(boss)
+#############
 
             x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
         y += PLATFORM_HEIGHT  # то же самое и с высотой
@@ -766,12 +762,6 @@ def level():
             if pygame.sprite.collide_rect(hero, key) and not key.pickuped:
                 key.pickup()
                 hero.pickuping_key = True
-            # if e.type == pygame.MOUSEBUTTONDOWN:
-            #     x, y = e.pos
-            #     if 10 <= x and x <= 10 + 66 and (150 <= y and y <= 50 + 66):
-            #         raning = False
-            #         fade()
-            #         main_menu()
             if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1 or \
                     e.type == pygame.KEYDOWN and e.key == pygame.K_LCTRL:
                 hero.attacking = True
