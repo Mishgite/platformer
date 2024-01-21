@@ -420,7 +420,7 @@ class Player(pygame.sprite.Sprite):
             if self.rotation:
                 self.attackRightAnim.blit(self.image, (0, 0))
                 if self.attackRightAnim.currentFrameNum in ATTACK_PAUSES:
-                    if pygame.mouse.get_pressed(3)[0]:
+                    if pygame.mouse.get_pressed(3)[0] or pygame.key.get_pressed()[pygame.K_LCTRL]:
                         for sprite in enemies:
                             if sprite.hit_collide(attack_wave.rect):
                                 sprite.HP -= self.DPS
