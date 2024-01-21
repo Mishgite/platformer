@@ -697,7 +697,11 @@ def level():
                 damage_dealing.append(enemy)
                 entities.add(enemy)
                 enemies.add(enemy)
-#############
+            if col == 'B':
+                boss = Boss(x, y)
+                damage_dealing.append(boss)
+                entities.add(boss)
+                enemies.add(boss)
 
             x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
         y += PLATFORM_HEIGHT  # то же самое и с высотой
